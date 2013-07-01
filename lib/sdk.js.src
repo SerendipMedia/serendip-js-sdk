@@ -2025,14 +2025,20 @@ define("requireLib", function(){});
     return ErrorObject = (function() {
       ErrorObject.prototype.codes = {
         ERR_GENERIC: "Generic Error",
-        ERR_NOT_INITIALIZED: "SDK Not Initialized. Must call SRNDP.init with a valid client id"
+        ERR_NOT_INITIALIZED: "SDK Not Initialized. Must call SRNDP.init with a valid client id.",
+        ERR_NOT_LOGGED_IN_OR_INVALID_TOKEN: "Trying to access an autheticated endpoint without a valid Auth Token.",
+        ERR_INVALID_API_CALL: "An invalid API call.",
+        ERR_AUTHENTICATION_REQUIRED: "Endpoint requires authentication. Use 'auth' in SRNDP.api"
       };
 
-      function ErrorObject(code) {
+      function ErrorObject(code, serverError) {
         this.code = code;
         this.msg = this.codes[code];
         if (this.msg == null) {
           this.msg = this.codes["ERR_GENERIC"];
+        }
+        if ((serverError != null) && (serverError.error_message != null)) {
+          this.msg = this.msg + " (Message From Server: " + serverError.error_message + ")";
         }
       }
 
@@ -2089,6 +2095,65 @@ u[o]&&(delete u[o],c?delete n[l]:typeof n.removeAttribute!==i?n.removeAttribute(
           }).fail(function(err) {
             return _this.reject(err);
           });
+        });
+      },
+      api: function(endpoint, params, auth, method) {
+        if (auth == null) {
+          auth = false;
+        }
+        if (method == null) {
+          method = 'GET';
+        }
+        return $.Deferred(function() {
+          var BASE_URL, FULL_URL, isValidMethodName,
+            _this = this;
+          isValidMethodName = (function(method) {
+            var validMethodName, _i, _len, _ref;
+            _ref = ['GET', 'POST', 'PUT', 'HEAD', 'DELETE'];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              validMethodName = _ref[_i];
+              if (method === validMethodName) {
+                return true;
+              }
+            }
+            return false;
+          })(method);
+          if (!isValidMethodName) {
+            return this.reject(new ErrorObject("ERR_INVALID_API_CALL"));
+          } else if (!SRNDP.CLIENT_ID) {
+            return this.reject(new ErrorObject("ERR_NOT_INITIALIZED"));
+          } else if (auth && (SRNDP.AUTH_TOKEN == null)) {
+            return this.reject(new ErrorObject("ERR_NOT_LOGGED_IN_OR_INVALID_TOKEN"));
+          } else {
+            BASE_URL = "api.serendip.me/v1";
+            BASE_URL = (auth ? "https://" : "http://") + BASE_URL;
+            FULL_URL = BASE_URL + endpoint;
+            if (auth) {
+              params = $.extend(params, {
+                client_id: SRNDP.CLIENT_ID,
+                auth_token: SRNDP.AUTH_TOKEN
+              });
+            } else {
+              params = $.extend(params, {
+                client_id: SRNDP.CLIENT_ID
+              });
+            }
+            return $.ajax({
+              type: method,
+              url: FULL_URL,
+              data: params,
+              success: function(data) {
+                return _this.resolve(data);
+              },
+              error: function(error) {
+                if (error.status === 401) {
+                  return _this.reject(new ErrorObject("ERR_AUTHENTICATION_REQUIRED"));
+                } else {
+                  return _this.reject(new ErrorObject("ERR_INVALID_API_CALL", error.responseJSON));
+                }
+              }
+            });
+          }
         });
       }
     };

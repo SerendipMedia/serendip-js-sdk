@@ -5,25 +5,38 @@
     <title>Serendip SDK Demo App</title>
     <script>
         window.onSrndpReady = function() {
+            // Generic error handling
+            var errFunc = function(error) {
+                throw error.msg;
+            };
             // init the SRNDP JS SDK
             SRNDP.init({
                 clientId      : '98f3cf75',
                 redirect_url : 'http://local.serendip.me:9000/demo'
             }).done(
                     function(response) {
-                        if (response.status == 'ok')
-                            console.log("OK");
+                        if (response.status == 'ok') {
+                            <!--Call unauth dj info; display username-->
+                            SRNDP.api("/dj/info.json",{username: 'brad'}).done(
+                                function(dj) {
+                                    console.log(dj.userName);
+                                }
+                            ).fail(errFunc);
+                            <!--Call to authenticated endpoint to display my feed-->
+                            SRNDP.api("/feed/home.json",{},true).done(
+                                    function(feed) {
+                                        console.log(feed);
+                                    }
+                            ).fail(errFunc);
+                        }
                     }
-            ).fail(
-                    function(error) {
-                        throw error.msg;
-                    }
-            );
+            ).fail(errFunc);
 
             // Additional initialization code such as adding Event Listeners goes here
         };
 
         // Load the SDK asynchronously
+
         (function(d, s, id){
             var js, sjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) {return;}
@@ -31,7 +44,9 @@
             js.src = "http://localhost:8000/lib/sdk.js";
             sjs.parentNode.insertBefore(js, sjs);
         }(document, 'script', 'srndp-jssdk'));
+
     </script>
+    <!--<script data-main="../src/sdk" src="../src/require.js"></script>-->
 </head>
 <body>
 
