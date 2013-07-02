@@ -3,16 +3,23 @@
 <html>
 <head>
     <title>Serendip SDK Demo App</title>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script>
         window.onSrndpReady = function() {
             // Generic error handling
-            var errFunc = function(error) {
-                throw error.msg;
+            errFunc = function(error) {
+                if (error.throwable) throw error.msg;
+            };
+            loginFunc = function(loginObj) {
+                if (loginObj.newUser) {
+                    console.log("Hello new user Is your name " + loginObj.newUserObj.name + "?");
+                } else {
+                    console.log("Hello " + loginObj.username);
+                }
             };
             // init the SRNDP JS SDK
             SRNDP.init({
-                clientId      : '98f3cf75',
-                redirect_url : 'http://local.serendip.me:9000/demo'
+                clientId      : '98f3cf75'
             }).done(
                     function(response) {
                         if (response.status == 'ok') {
@@ -22,21 +29,43 @@
                                     console.log(dj.userName);
                                 }
                             ).fail(errFunc);
-                            <!--Call to authenticated endpoint to display my feed-->
-                            SRNDP.api("/feed/home.json",{},true).done(
-                                    function(feed) {
-                                        console.log(feed);
-                                    }
-                            ).fail(errFunc);
+//                            <!--Call to authenticated endpoint to display my feed-->
+//                            SRNDP.api("/feed/home.json",{},true).done(
+//                                    function(feed) {
+//                                        console.log(feed);
+//                                    }
+//                            ).fail(errFunc);
                         }
                     }
             ).fail(errFunc);
 
             // Additional initialization code such as adding Event Listeners goes here
         };
+        $(document).ready(
+                function() {
+                    <!--Set click event handler for sign in with twitter and facebook -->
+
+                    $("#login-facebook").click(
+                            function(e) {
+                                e.preventDefault();
+                                if (typeof SRNDP != 'undefined') {
+                                    SRNDP.login("facebook").done(loginFunc).fail(errFunc);
+                                }
+                            }
+                    );
+                    $("#login-twitter").click(
+                            function(e) {
+                                e.preventDefault();
+                                if (typeof SRNDP != 'undefined') {
+                                    SRNDP.login("twitter").done(loginFunc).fail(errFunc);
+                                }
+                            }
+                    );
+                }
+        )
 
         // Load the SDK asynchronously
-
+/***
         (function(d, s, id){
             var js, sjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) {return;}
@@ -44,11 +73,12 @@
             js.src = "http://localhost:8000/lib/sdk.js";
             sjs.parentNode.insertBefore(js, sjs);
         }(document, 'script', 'srndp-jssdk'));
-
+***/
     </script>
-    <!--<script data-main="../src/sdk" src="../src/require.js"></script>-->
+    <script data-main="../src/sdk" src="../src/require.js"></script>
 </head>
 <body>
-
+    <div><a id="login-facebook" href="#">Login With Facebook</a></div>
+    <div><a id="login-twitter" href="#">Login With Twitter</a></div>
 </body>
 </html>
