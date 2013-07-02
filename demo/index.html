@@ -12,20 +12,56 @@
             };
             loginFunc = function(loginObj) {
                 if (loginObj.newUser) {
-                    console.log("Hello new user Is your name " + loginObj.newUserObj.name + "?");
+                    clearAllMessages();
+                    showLoggedIn(true);
+                    $("#profile").html("Hello new user Is your name " + loginObj.newUserObj.name + "?");
                 } else {
                     showLoggedIn();
                 }
+            };
+            onStatusChange = function(resp) {
+                if (resp.status == "logged_in" && SRNDP.isActive()) {
+                    showLoggedIn();
+                } else {
+                    if (resp.facebook_authorized) {
+                        clearUI();
+                        updateMessage("Logging In ...");
+                        SRNDP.login("facebook",true).done(loginFunc).fail(errFunc);
+                    }
+                    else {
+                        showLoggedOut();
+                    }
+                }
+            }
+
+            clearUI = function() {
+                $("#login").hide();
+                $("#hello").hide();
             };
             showLoggedOut = function() {
                 $("#login").show();
                 $("#hello").hide();
             };
-            showLoggedIn = function() {
+            showLoggedIn = function(newUser) {
                 $("#hello").show();
                 $("#login").hide();
-                getMyFeed();
+                if (!newUser) showProfile();
             };
+            updateMessage = function(msg) {
+                $("#message").html(msg);
+            };
+            clearAllMessages = function() {
+                $("#message").empty();
+            };
+            showProfile = function() {
+                clearAllMessages();
+                SRNDP.api("/dj/info.json",{},true).done(
+                  function (me) {
+                      $("#profile").html("<div>Hello "+me.userName+"</div>");
+                      $("#profile").append("<div><img style='width: 50px; height: 50px;' src='"+me.profilePicture+"'/></div>");
+                  }
+                ).fail(errFunc);
+            }
             getMyFeed = function() {
                 <!--Call to authenticated endpoint to display my feed-->
                 SRNDP.api("/feed/home.json",{},true).done(
@@ -44,22 +80,9 @@
             }).done(
                 function(response) {
                     if (response.status == 'ok') {
-                        <!--Call unauth dj info; display username-->
-                        SRNDP.api("/dj/info.json",{username: 'brad'}).done(
-                            function(dj) {
-                                console.log(dj.userName);
-                            }
-                        ).fail(errFunc);
-                        <!-- check login status and display appropiate UI -->
-                        SRNDP.getLoginStatus().done(
-                            function(resp) {
-                                if (resp.status == "logged_in") {
-                                    showLoggedIn();
-                                } else {
-                                    showLoggedOut();
-                                }
-                            }
-                        ).fail(errFunc);
+                        <!-- check login status and display appropriate UI -->
+                        SRNDP.getLoginStatus().done(onStatusChange).fail(errFunc);
+                        SRNDP.subscribe("srndp.statusChange",onStatusChange);
                     }
                 }
             ).fail(errFunc);
@@ -117,15 +140,15 @@
     <script data-main="../src/sdk" src="../src/require.js"></script>
 </head>
 <body>
+    <div id="message"></div><div></div>
     <div id="login" style="display: none;">
         <div><a id="login-facebook" href="#">Login With Facebook</a></div>
         <div><a id="login-twitter" href="#">Login With Twitter</a></div>
     </div>
     <div id="hello" style="display: none;">
-        <div>Hello User</div>
+        <div id="profile"></div>
         <div><a id="logout" href="#">Logout</a></div>
         <div id="feed"></div>
-        <div></div><div>Loading Titles ... </div>
     </div>
 </body>
 </html>

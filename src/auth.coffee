@@ -17,6 +17,9 @@ define [
     )
     FB.Event.subscribe('auth.statusChange', (response) ->
       SRNDP.LAST_FB_RESPONSE = response
+      Auth.getLoginStatus().done( (loginStatus) ->
+        $(document).trigger("srndp.statusChange",loginStatus)
+      )
     )
   Auth =
     LOGIN_ENDPOINT : "/login"
@@ -41,19 +44,19 @@ define [
             err = new ErrorObject()
             @reject(err)
       ).promise()
-    login : (network, rememberMe = false, state, newWindow = true) ->
+    login : (network, implicit = false, rememberMe = false, state, newWindow = true) ->
       that = @
       return $.Deferred(
         () ->
           afterLogin = (obj) =>
             if obj["success"] or obj["success"] is "true"
-              newUser =  (obj["x_new_user"] is "true")
+              newUser =  (obj["x_new_user"] is "true" or obj["x_new_user"])
               if newUser
                 newUserObj =
                   username : obj["x_username"]
                   email : obj["x_email"]
                   name : obj["x_name"]
-              that.setAccessToken(obj["access_token"],obj["expires_in"])
+              that.setAccessToken(obj["access_token"],obj["expires_in"],!newUser)
               @resolve(new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"]))
             else
               @reject(new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")}))
@@ -63,7 +66,6 @@ define [
               afterLogin(obj)
           unless SRNDP.CLIENT_ID then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
           else
-            # try FB client-side first
             params =
               network : network
               state : state
@@ -71,7 +73,8 @@ define [
               response_type : "token"
               sdk : true
               rememberMe : rememberMe
-            if network is "facebook" and SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected"
+#              implpicit login
+            if network is "facebook" and SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected" and implicit
               authResponse = SRNDP.LAST_FB_RESPONSE.authResponse
               fbTokens =
                 network_token : authResponse.accessToken
@@ -108,32 +111,28 @@ define [
       that = @
       return $.Deferred(
         () ->
+          facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
           at = that.getAccessToken()
           if at?
-            @resolve(new LoginStatusObject("logged_in"))
+            @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized))
           else
-            @resolve(new LoginStatusObject("logged_out"))
+            @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized))
       ).promise()
     logout : () ->
       that = @
       return $.Deferred(
         () ->
-          Api.call('/auth/logout.json',null,true,that.getAccessToken()).done(
-            (response) =>
-              if (response.success is true)
-                that.removeAccessToken()
-                @resolve(new ResponseObject())
-              else
-                @reject(new ErrorObject())
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
-      ).promise()
+          that.removeAccessToken()
+          @resolve(new ResponseObject())
+          Api.call('/auth/logout.json',null,true,that.getAccessToken()).promise()
+      )
+    isActive : () ->
+      cred = $.jStorage.get("SRNDP_cred", null)
+      if cred? then cred.act else false
     getAccessToken : () ->
       cred = $.jStorage.get("SRNDP_cred", null)
       if cred? then cred.at else null
-    setAccessToken : (authToken, ttl) ->
-      $.jStorage.set("SRNDP_cred",{"at" : authToken},{TTL : 100 * ttl})
+    setAccessToken : (authToken, ttl, active = true) ->
+      $.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 100 * ttl})
     removeAccessToken : () ->
       $.jStorage.deleteKey("SRNDP_cred")

@@ -30,10 +30,14 @@ define [
               @reject(err)
           )
       ).promise()
-    login : (network, rememberMe = false, state, newWindow = true) ->
+    subscribe : (event, callback) ->
+      $(document).on(event, (e,obj) ->
+        callback(obj) if obj?
+      )
+    login : (network, implicit = false, rememberMe = false, state, newWindow = true) ->
       return $.Deferred(
         () ->
-          Auth.login(network,rememberMe,state,newWindow).done(
+          Auth.login(network,implicit,rememberMe,state,newWindow).done(
             (resp) =>
               @resolve(resp)
           ).fail(
@@ -52,6 +56,8 @@ define [
               @reject(err)
           )
       ).promise()
+    isActive : () ->
+      Auth.isActive();
     logout : () ->
       return $.Deferred(
         () ->
