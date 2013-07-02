@@ -6,7 +6,18 @@ define [
   'cs!api'
   'jquery'
   'jstorage'
+  'facebook_sdk'
 ], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api) ->
+  window.fbAsyncInit = () ->
+    # init the FB JS SDK
+    FB.init(
+      appId      : Settings.FB_APP_ID
+      channelUrl : Settings.BASE_URL + '/public/website/channel.html'
+      status     : true
+    )
+    FB.Event.subscribe('auth.statusChange', (response) ->
+      SRNDP.LAST_FB_RESPONSE = response
+    )
   Auth =
     LOGIN_ENDPOINT : "/login"
     CONNECT_PARAMS :
@@ -34,43 +45,64 @@ define [
       that = @
       return $.Deferred(
         () ->
+          afterLogin = (obj) =>
+            if obj["success"] or obj["success"] is "true"
+              newUser =  (obj["x_new_user"] is "true")
+              if newUser
+                newUserObj =
+                  username : obj["x_username"]
+                  email : obj["x_email"]
+                  name : obj["x_name"]
+              that.setAccessToken(obj["access_token"],obj["expires_in"])
+              @resolve(new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"]))
+            else
+              @reject(new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")}))
           window.onmessage = (e) =>
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) != -1)
-              if e.data["success"] is "true"
-                newUser =  (e.data["x_new_user"] is "true")
-                if newUser
-                  newUserObj =
-                    username : e.data["x_username"]
-                    email : e.data["x_email"]
-                    name : e.data["x_name"]
-                that.setAccessToken(e.data["access_token"],e.data["expires_in"])
-                @resolve(new LoginStatusObject("logged_in",e.data["username"],newUser,newUserObj,e.data["state"]))
-              else
-                @reject(new ErrorObject("ERR_GENERIC",{"error_message" : e.data.error_description.replace(/\+/g," ")}))
+              obj = e.data
+              afterLogin(obj)
           unless SRNDP.CLIENT_ID then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
           else
-            url = Settings.BASE_OAUTH_URL + that.LOGIN_ENDPOINT
-            origin = window.location.protocol + "//"  +window.location.hostname
-            port = window.location.port
-            if port?
-              origin = origin + ":" + port
+            # try FB client-side first
             params =
               network : network
               state : state
               client_id : SRNDP.CLIENT_ID
               response_type : "token"
               sdk : true
-              origin : origin
               rememberMe : rememberMe
+            if network is "facebook" and SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected"
+              authResponse = SRNDP.LAST_FB_RESPONSE.authResponse
+              fbTokens =
+                network_token : authResponse.accessToken
+                network_secret : authResponse.signedRequest
+                network_expiration : authResponse.expiresIn
+              $.extend(params,fbTokens)
+            url = Settings.BASE_OAUTH_URL + that.LOGIN_ENDPOINT
+            origin = window.location.protocol + "//"  +window.location.hostname
+            port = window.location.port
+            if port?
+              origin = origin + ":" + port
+            params.origin = origin
             url = url + "?" + $.param(params)
-            if (newWindow)
-              options = if (network == "facebook")
-                          {width : 535, height: 463}
-                        else
-                          {width : 535, height: 663}
-              window.open(url,"_blank",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
+            if (fbTokens?)
+              $.ajax(
+                url : url
+                type : 'GET'
+                success : (obj) ->
+                  afterLogin(obj)
+                error : () ->
+                  @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
+              )
             else
-              @reject(new ErrorObject("ERR_NOT_SUPPORTED",{"error_message" : "newWindow=false not supported"}))
+              if (newWindow)
+                options = if (network == "facebook")
+                            {width : 535, height: 463}
+                          else
+                            {width : 535, height: 663}
+                window.open(url,"_blank",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
+              else
+                @reject(new ErrorObject("ERR_NOT_SUPPORTED",{"error_message" : "newWindow=false not supported"}))
       ).promise()
     getLoginStatus : () ->
       that = @
