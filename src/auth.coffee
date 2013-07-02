@@ -3,9 +3,10 @@ define [
   'cs!objects/error'
   'cs!objects/login_status'
   'cs!settings'
+  'cs!api'
   'jquery'
   'jstorage'
-], (ResponseObject,ErrorObject,LoginStatusObject,Settings) ->
+], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api) ->
   Auth =
     LOGIN_ENDPOINT : "/login"
     CONNECT_PARAMS :
@@ -42,6 +43,7 @@ define [
                     username : e.data["x_username"]
                     email : e.data["x_email"]
                     name : e.data["x_name"]
+                that.setAccessToken(e.data["access_token"],e.data["expires_in"])
                 @resolve(new LoginStatusObject("logged_in",e.data["username"],newUser,newUserObj,e.data["state"]))
               else
                 @reject(new ErrorObject("ERR_GENERIC",{"error_message" : e.data.error_description.replace(/\+/g," ")}))
@@ -70,3 +72,36 @@ define [
             else
               @reject(new ErrorObject("ERR_NOT_SUPPORTED",{"error_message" : "newWindow=false not supported"}))
       ).promise()
+    getLoginStatus : () ->
+      that = @
+      return $.Deferred(
+        () ->
+          at = that.getAccessToken()
+          if at?
+            @resolve(new LoginStatusObject("logged_in"))
+          else
+            @resolve(new LoginStatusObject("logged_out"))
+      ).promise()
+    logout : () ->
+      that = @
+      return $.Deferred(
+        () ->
+          Api.call('/auth/logout.json',null,true,that.getAccessToken()).done(
+            (response) =>
+              if (response.success is true)
+                that.removeAccessToken()
+                @resolve(new ResponseObject())
+              else
+                @reject(new ErrorObject())
+          ).fail(
+            (err) =>
+              @reject(err)
+          )
+      ).promise()
+    getAccessToken : () ->
+      cred = $.jStorage.get("SRNDP_cred", null)
+      if cred? then cred.at else null
+    setAccessToken : (authToken, ttl) ->
+      $.jStorage.set("SRNDP_cred",{"at" : authToken},{TTL : 100 * ttl})
+    removeAccessToken : () ->
+      $.jStorage.deleteKey("SRNDP_cred")

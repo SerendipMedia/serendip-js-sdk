@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Serendip SDK Demo App</title>
-    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="/src/jquery-1.10.1.min.js"></script>
     <script>
         window.onSrndpReady = function() {
             // Generic error handling
@@ -14,54 +14,93 @@
                 if (loginObj.newUser) {
                     console.log("Hello new user Is your name " + loginObj.newUserObj.name + "?");
                 } else {
-                    console.log("Hello " + loginObj.username);
+                    showLoggedIn();
                 }
+            };
+            showLoggedOut = function() {
+                $("#login").show();
+                $("#hello").hide();
+            };
+            showLoggedIn = function() {
+                $("#hello").show();
+                $("#login").hide();
+                getMyFeed();
+            };
+            getMyFeed = function() {
+                <!--Call to authenticated endpoint to display my feed-->
+                SRNDP.api("/feed/home.json",{},true).done(
+                    function(feed) {
+                        if (feed.count > 0) {
+                            for (i = 0; i < feed.tracks.length; i++) {
+                                $("#feed").append("<div>"+feed.tracks[i].title+"</div>");
+                            }
+                        }
+                    }
+                ).fail(errFunc);
             };
             // init the SRNDP JS SDK
             SRNDP.init({
                 clientId      : '98f3cf75'
             }).done(
-                    function(response) {
-                        if (response.status == 'ok') {
-                            <!--Call unauth dj info; display username-->
-                            SRNDP.api("/dj/info.json",{username: 'brad'}).done(
-                                function(dj) {
-                                    console.log(dj.userName);
+                function(response) {
+                    if (response.status == 'ok') {
+                        <!--Call unauth dj info; display username-->
+                        SRNDP.api("/dj/info.json",{username: 'brad'}).done(
+                            function(dj) {
+                                console.log(dj.userName);
+                            }
+                        ).fail(errFunc);
+                        <!-- check login status and display appropiate UI -->
+                        SRNDP.getLoginStatus().done(
+                            function(resp) {
+                                if (resp.status == "logged_in") {
+                                    showLoggedIn();
+                                } else {
+                                    showLoggedOut();
                                 }
-                            ).fail(errFunc);
-//                            <!--Call to authenticated endpoint to display my feed-->
-//                            SRNDP.api("/feed/home.json",{},true).done(
-//                                    function(feed) {
-//                                        console.log(feed);
-//                                    }
-//                            ).fail(errFunc);
-                        }
+                            }
+                        ).fail(errFunc);
                     }
+                }
             ).fail(errFunc);
 
             // Additional initialization code such as adding Event Listeners goes here
         };
         $(document).ready(
-                function() {
-                    <!--Set click event handler for sign in with twitter and facebook -->
+            function() {
+                <!--Set click event handler for auth ops -->
 
-                    $("#login-facebook").click(
-                            function(e) {
-                                e.preventDefault();
-                                if (typeof SRNDP != 'undefined') {
-                                    SRNDP.login("facebook").done(loginFunc).fail(errFunc);
+                $("#login-facebook").click(
+                    function(e) {
+                        e.preventDefault();
+                        if (typeof SRNDP != 'undefined') {
+                            SRNDP.login("facebook").done(loginFunc).fail(errFunc);
+                        }
+                    }
+                );
+                $("#login-twitter").click(
+                    function(e) {
+                        e.preventDefault();
+                        if (typeof SRNDP != 'undefined') {
+                            SRNDP.login("twitter").done(loginFunc).fail(errFunc);
+                        }
+                    }
+                );
+                $("#logout").click(
+                    function(e) {
+                        e.preventDefault();
+                        if (typeof SRNDP != 'undefined') {
+                            SRNDP.logout().done(
+                                function(response) {
+                                    if (response.status == 'ok') {
+                                        showLoggedOut();
+                                    }
                                 }
-                            }
-                    );
-                    $("#login-twitter").click(
-                            function(e) {
-                                e.preventDefault();
-                                if (typeof SRNDP != 'undefined') {
-                                    SRNDP.login("twitter").done(loginFunc).fail(errFunc);
-                                }
-                            }
-                    );
-                }
+                            ).fail(errFunc);
+                        }
+                    }
+                )
+            }
         )
 
         // Load the SDK asynchronously
@@ -78,7 +117,15 @@
     <script data-main="../src/sdk" src="../src/require.js"></script>
 </head>
 <body>
-    <div><a id="login-facebook" href="#">Login With Facebook</a></div>
-    <div><a id="login-twitter" href="#">Login With Twitter</a></div>
+    <div id="login" style="display: none;">
+        <div><a id="login-facebook" href="#">Login With Facebook</a></div>
+        <div><a id="login-twitter" href="#">Login With Twitter</a></div>
+    </div>
+    <div id="hello" style="display: none;">
+        <div>Hello User</div>
+        <div><a id="logout" href="#">Logout</a></div>
+        <div id="feed"></div>
+        <div></div><div>Loading Titles ... </div>
+    </div>
 </body>
 </html>
