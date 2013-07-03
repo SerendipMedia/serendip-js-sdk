@@ -46,19 +46,6 @@ define [
               @reject(err)
           )
       ).promise()
-    logoutFromFB : () ->
-      SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb",Settings.BASE_URL)
-      that = @
-      return $.Deferred(
-        () ->
-          that.logout().done(
-            (resp) =>
-              @resolve(resp)
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
-      ).promise()
     activate : () ->
       return $.Deferred(
         () ->
@@ -94,7 +81,9 @@ define [
       ).promise()
     isRegistered : () ->
       Auth.isRegistered();
-    logout : () ->
+    logout : (facebook = false) ->
+      if (facebook)
+        SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb",Settings.BASE_URL)
       return $.Deferred(
         () ->
           Auth.logout().done(
