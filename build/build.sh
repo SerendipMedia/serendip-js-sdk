@@ -15,7 +15,8 @@ do
     sed "s/cs!//g" "$f" > $TFILE && mv $TFILE "$f"
 done
 echo "Compiling SDK"
-rm -rf $TARGET_DIR
-node r.js -o build.js
+rm -rf $TARGET_DIR/*.js
+node r.js -o build_sdk.js
+node r.js -o build_iframe.js
 
 

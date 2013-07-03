@@ -69,5 +69,6 @@ define [
               @reject(err)
           )
       ).promise()
-#  Trigger the onSrndpReady function
-  if window.onSrndpReady? then window.onSrndpReady()
+
+  # call serendip ready
+  window.onSrndpReady()

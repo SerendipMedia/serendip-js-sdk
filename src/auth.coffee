@@ -6,21 +6,14 @@ define [
   'cs!api'
   'jquery'
   'jstorage'
-  'facebook_sdk'
 ], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api) ->
-  window.fbAsyncInit = () ->
-    # init the FB JS SDK
-    FB.init(
-      appId      : Settings.FB_APP_ID
-      channelUrl : Settings.BASE_URL + '/public/website/channel.html'
-      status     : true
-    )
-    FB.Event.subscribe('auth.statusChange', (response) ->
-      SRNDP.LAST_FB_RESPONSE = response
-      Auth.getLoginStatus().done( (loginStatus) ->
-        $(document).trigger("srndp.statusChange",loginStatus)
-      )
-    )
+  # catch FB message
+  window.onmessage = (msg) ->
+      if (msg.origin == Settings.BASE_URL)
+        SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
+        Auth.getLoginStatus().done( (loginStatus) ->
+          $(document).trigger("srndp.statusChange",loginStatus)
+        )
   Auth =
     LOGIN_ENDPOINT : "/login"
     CONNECT_PARAMS :

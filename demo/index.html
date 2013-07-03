@@ -125,19 +125,20 @@
                 )
             }
         )
+</script>
 
-        // Load the SDK asynchronously
-/***
+    <!-- Load the SDK asynchronously -->
+    <script>
         (function(d, s, id){
             var js, sjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) {return;}
             js = d.createElement(s); js.id = id;
-            js.src = "http://localhost:8000/lib/sdk.js";
+            js.src = "http://developers.serendip.me:8000/lib/sdk.js";
             sjs.parentNode.insertBefore(js, sjs);
-        }(document, 'script', 'srndp-jssdk'));
-***/
+        })(document, 'script', 'srndp-jssdk');
+
     </script>
-    <script data-main="../src/sdk" src="../src/require.js"></script>
+    <!--<script data-main="../src/sdk" src="../src/require.js"></script>-->
 </head>
 <body>
     <div id="message"></div><div></div>
