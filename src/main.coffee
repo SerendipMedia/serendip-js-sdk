@@ -48,7 +48,17 @@ define [
       ).promise()
     logoutFromFB : () ->
       SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb",Settings.BASE_URL)
-      @logout()
+      that = @
+      return $.Deferred(
+        () ->
+          that.logout().done(
+            (resp) =>
+              @resolve(resp)
+          ).fail(
+            (err) =>
+              @reject(err)
+          )
+      ).promise()
     activate : () ->
       return $.Deferred(
         () ->
