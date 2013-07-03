@@ -107,9 +107,49 @@ define [
           facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
           at = that.getAccessToken()
           if at?
-            @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized))
+            if that.isRegistered()
+              @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized))
+            else
+              @resolve(new LoginStatusObject("signing_up",null,null,null,null,facebook_authorized))
           else
             @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized))
+      ).promise()
+    register : (username, name, rememberMe = false, email,location, shouldActivate) ->
+      that = @
+      return $.Deferred(
+        () ->
+          params =
+            username : username
+            name : name
+            rememberMe : rememberMe
+            email : email
+            location : location
+            shouldActivate : shouldActivate
+          Api.call('/auth/register.json',params,true,that.getAccessToken()).done( (res) =>
+            if (res.success)
+              @resolve(new ResponseObject())
+              that.setAccessToken(that.getAccessToken(),that.getTTL(),true)
+              $(document).trigger("srndp.statusChange",new LoginStatusObject("logged_in"))
+            else
+              @reject(new ErrorObject())
+          ).fail( (err) =>
+            @reject(err)
+          )
+      ).promise()
+    activate : () ->
+      that = @
+      return $.Deferred(
+        () ->
+          Api.call('/auth/activate.json',null,true,that.getAccessToken()).done( (res) =>
+            if (res.success)
+              that.setAccessToken(that.getAccessToken(),that.getTTL(),true)
+              @resolve(new ResponseObject())
+              $(document).trigger("srndp.statusChange",new LoginStatusObject("logged_in"))
+            else
+              @reject(new ErrorObject())
+          ).fail( (err) =>
+            @reject(err)
+          )
       ).promise()
     logout : () ->
       that = @
@@ -118,8 +158,8 @@ define [
           that.removeAccessToken()
           @resolve(new ResponseObject())
           Api.call('/auth/logout.json',null,true,that.getAccessToken()).promise()
-      )
-    isActive : () ->
+      ).promise()
+    isRegistered : () ->
       cred = $.jStorage.get("SRNDP_cred", null)
       if cred? then cred.act else false
     getAccessToken : () ->
@@ -129,3 +169,6 @@ define [
       $.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 100 * ttl})
     removeAccessToken : () ->
       $.jStorage.deleteKey("SRNDP_cred")
+    getTTL : () ->
+      $.jStorage.getTTL("SRNDP_cred")
+

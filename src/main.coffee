@@ -45,6 +45,28 @@ define [
               @reject(err)
           )
       ).promise()
+    activate : () ->
+      return $.Deferred(
+        () ->
+          Auth.activate().done(
+            (resp) =>
+              @resolve(resp)
+          ).fail(
+            (err) =>
+              @reject(err)
+          )
+      ).promise()
+    register : (username, name, rememberMe = false, email,location, shouldActivate) ->
+      return $.Deferred(
+        () ->
+          Auth.register(username, name, rememberMe , email,location, shouldActivate).done(
+            (resp) =>
+              @resolve(resp)
+          ).fail(
+            (err) =>
+              @reject(err)
+          )
+      ).promise()
     getLoginStatus : () ->
       return $.Deferred(
         () ->
@@ -56,8 +78,8 @@ define [
               @reject(err)
           )
       ).promise()
-    isActive : () ->
-      Auth.isActive();
+    isRegistered : () ->
+      Auth.isRegistered();
     logout : () ->
       return $.Deferred(
         () ->

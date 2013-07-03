@@ -12,16 +12,20 @@
             };
             loginFunc = function(loginObj) {
                 if (loginObj.newUser) {
+                    nu = loginObj.newUserObj;
+                    window.NEW_USER_OBJ = nu;
                     clearAllMessages();
                     showLoggedIn(true);
-                    $("#profile").html("Hello new user Is your name " + loginObj.newUserObj.name + "?");
+                    $("#newuser_msg").html("Name: "+ nu.name + "<br/>Username: " + nu.username + "<br/>email: " + nu.email);
                 } else {
                     showLoggedIn();
                 }
             };
             onStatusChange = function(resp) {
-                if (resp.status == "logged_in" && SRNDP.isActive()) {
+                if (resp.status == "logged_in") {
                     showLoggedIn();
+                } else if (resp.status == "signing_up") {
+                    showLoggedIn(true);
                 } else {
                     if (resp.facebook_authorized) {
                         clearUI();
@@ -45,7 +49,11 @@
             showLoggedIn = function(newUser) {
                 $("#hello").show();
                 $("#login").hide();
-                if (!newUser) showProfile();
+                $("#newuser").hide()
+                if (newUser)
+                    $("#newuser").show()
+                else
+                    showProfile();
             };
             updateMessage = function(msg) {
                 $("#message").html(msg);
@@ -62,18 +70,7 @@
                   }
                 ).fail(errFunc);
             }
-            getMyFeed = function() {
-                <!--Call to authenticated endpoint to display my feed-->
-                SRNDP.api("/feed/home.json",{},true).done(
-                    function(feed) {
-                        if (feed.count > 0) {
-                            for (i = 0; i < feed.tracks.length; i++) {
-                                $("#feed").append("<div>"+feed.tracks[i].title+"</div>");
-                            }
-                        }
-                    }
-                ).fail(errFunc);
-            };
+
             // init the SRNDP JS SDK
             SRNDP.init({
                 clientId      : '98f3cf75'
@@ -109,6 +106,16 @@
                         }
                     }
                 );
+
+                $("#register").click(
+                    function(e) {
+                        e.preventDefault();
+                        if (typeof SRNDP != 'undefined') {
+                            SRNDP.register(NEW_USER_OBJ.username, NEW_USER_OBJ.name, true, NEW_USER_OBJ.email,null, true).fail(errFunc);;
+                        }
+                    }
+                );
+
                 $("#logout").click(
                     function(e) {
                         e.preventDefault();
@@ -126,8 +133,9 @@
             }
         )
 </script>
-
     <!-- Load the SDK asynchronously -->
+
+    <!--
     <script>
         (function(d, s, id){
             var js, sjs = d.getElementsByTagName(s)[0];
@@ -138,18 +146,22 @@
         })(document, 'script', 'srndp-jssdk');
 
     </script>
-    <!--<script data-main="../src/sdk" src="../src/require.js"></script>-->
+    -->
+    <script data-main="../src/sdk" src="../src/require.js"></script>
 </head>
 <body>
     <div id="message"></div><div></div>
-    <div id="login" style="display: none;">
+    <div id="login" class="section" style="display: none;">
         <div><a id="login-facebook" href="#">Login With Facebook</a></div>
         <div><a id="login-twitter" href="#">Login With Twitter</a></div>
     </div>
-    <div id="hello" style="display: none;">
+    <div id="hello" class="section" style="display: none;">
         <div id="profile"></div>
+        <div id="newuser" style="display: none;">
+            <div id="newuser_msg"></div>
+            <div><a id="register" href="#">Register</a></div>
+        </div>
         <div><a id="logout" href="#">Logout</a></div>
-        <div id="feed"></div>
     </div>
 </body>
 </html>
