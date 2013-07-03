@@ -7,6 +7,7 @@
         iframe.src += (document.location.protocol + "//" + document.location.hostname)
     else
         iframe.src += document.location.origin
+    window.SRNDP_FB_IFRAME = iframe
     document.body.appendChild(iframe);
 //     listen to srnd ready message
     onSRNDPMsg = function(event) {

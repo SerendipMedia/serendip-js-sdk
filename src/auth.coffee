@@ -41,7 +41,7 @@ define [
       that = @
       return $.Deferred(
         () ->
-          afterLogin = (obj) =>
+          afterLogin = (obj, clientFlow = false) =>
             if obj["success"] or obj["success"] is "true"
               newUser =  (obj["x_new_user"] is "true" or obj["x_new_user"])
               if newUser
@@ -50,13 +50,13 @@ define [
                   email : obj["x_email"]
                   name : obj["x_name"]
               that.setAccessToken(obj["access_token"],obj["expires_in"],!newUser)
-              @resolve(new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"]))
+              @resolve(new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"],clientFlow))
             else
               @reject(new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")}))
           window.onmessage = (e) =>
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) != -1)
               obj = e.data
-              afterLogin(obj)
+              if (typeof obj is "object") then afterLogin(obj)
           unless SRNDP.CLIENT_ID then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
           else
             params =
@@ -86,7 +86,7 @@ define [
                 url : url
                 type : 'GET'
                 success : (obj) ->
-                  afterLogin(obj)
+                  afterLogin(obj,true)
                 error : () ->
                   @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
               )
@@ -156,6 +156,7 @@ define [
       return $.Deferred(
         () ->
           that.removeAccessToken()
+          $(document).trigger("srndp.statusChange",new LoginStatusObject("logged_out"))
           @resolve(new ResponseObject())
           Api.call('/auth/logout.json',null,true,that.getAccessToken()).promise()
       ).promise()

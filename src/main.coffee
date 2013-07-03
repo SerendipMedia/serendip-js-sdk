@@ -3,8 +3,9 @@ define [
   'cs!api'
   'cs!objects/response'
   'cs!objects/error'
+  'cs!settings'
   'jquery'
-], (Auth,Api,ResponseObject,ErrorObject) ->
+], (Auth,Api,ResponseObject,ErrorObject,Settings) ->
 #  Define the SRNDP object
   window.SRNDP =
     init : (initObject) ->
@@ -45,6 +46,9 @@ define [
               @reject(err)
           )
       ).promise()
+    logoutFromFB : () ->
+      SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb",Settings.BASE_URL)
+      @logout()
     activate : () ->
       return $.Deferred(
         () ->

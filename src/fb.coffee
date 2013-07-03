@@ -13,3 +13,8 @@ define [
       if (window.__SRNDP__ORIGIN_?)
         parent.postMessage(JSON.stringify(response),window.__SRNDP__ORIGIN_);
     )
+  window.onmessage = (msg) ->
+    if (msg.origin is window.__SRNDP__ORIGIN_)
+      switch msg.data
+        when "srndp-logout-fb"
+          FB.logout()

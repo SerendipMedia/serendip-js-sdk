@@ -19,6 +19,8 @@
                     $("#newuser_msg").html("Name: "+ nu.name + "<br/>Username: " + nu.username + "<br/>email: " + nu.email);
                 } else {
                     showLoggedIn();
+                    if (loginObj.facebook_authorized)
+                        showMoreLoginOptions();
                 }
             };
             onStatusChange = function(resp) {
@@ -48,6 +50,8 @@
             };
             showLoggedIn = function(newUser) {
                 $("#hello").show();
+                $("#more_login_options").hide();
+                $("#logout").show();
                 $("#login").hide();
                 $("#newuser").hide()
                 if (newUser)
@@ -55,6 +59,10 @@
                 else
                     showProfile();
             };
+            showMoreLoginOptions = function() {
+                $("#more_login_options").show();
+                $("#logout").hide();
+            }
             updateMessage = function(msg) {
                 $("#message").html(msg);
             };
@@ -98,7 +106,7 @@
                         }
                     }
                 );
-                $("#login-twitter").click(
+                $("#login-twitter, #with_twitter").click(
                     function(e) {
                         e.preventDefault();
                         if (typeof SRNDP != 'undefined') {
@@ -107,6 +115,14 @@
                     }
                 );
 
+                $("#another_user").click(
+                        function(e) {
+                            e.preventDefault();
+                            if (typeof SRNDP != 'undefined') {
+                                SRNDP.logoutFromFB();
+                            }
+                        }
+                )
                 $("#register").click(
                     function(e) {
                         e.preventDefault();
@@ -120,13 +136,7 @@
                     function(e) {
                         e.preventDefault();
                         if (typeof SRNDP != 'undefined') {
-                            SRNDP.logout().done(
-                                function(response) {
-                                    if (response.status == 'ok') {
-                                        showLoggedOut();
-                                    }
-                                }
-                            ).fail(errFunc);
+                            SRNDP.logout().fail(errFunc);
                         }
                     }
                 )
@@ -162,6 +172,10 @@
             <div><a id="register" href="#">Register</a></div>
         </div>
         <div><a id="logout" href="#">Logout</a></div>
+        <div id="more_login_options" style="display: none;">
+            <div><a id="another_user"  href="#">Login As Another FB User</a></div>
+            <div><a id="with_twitter" href="#">Login With Twitter</a></div>
+        </div>
     </div>
 </body>
 </html>
