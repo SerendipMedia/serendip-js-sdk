@@ -12,4 +12,4 @@ require.config({
     }
 })
 
-require(['cs!fb']);
+require(['cs!router']);

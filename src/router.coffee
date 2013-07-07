@@ -34,12 +34,12 @@ define [
             )
 
   # init code
-    window.SRNDP = {}
-    parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
-    session = $.cookie(Settings.SESSION_COOKIE_NAME)
-    if session?
-      session = session.indexOf('user')
-    else
-      session = -1
-    replyMsg = if session is -1 then "logged_out" else "logged_in"
-    parent.postMessage("srndp-chk-session:"+replyMsg,window.__SRNDP__ORIGIN_)
+  window.SRNDP = {}
+  parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
+  session = $.cookie(Settings.SESSION_COOKIE_NAME)
+  if session?
+    session = session.indexOf('user')
+  else
+    session = -1
+  replyMsg = if session is -1 then "logged_out" else "logged_in"
+  parent.postMessage("srndp-chk-session:"+replyMsg,window.__SRNDP__ORIGIN_)

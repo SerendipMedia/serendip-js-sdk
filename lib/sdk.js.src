@@ -3104,9 +3104,9 @@ define("jstorage", function(){});
       var obj, replyMsg;
       if (msg.origin === Settings.BASE_URL) {
         if (msg.data.indexOf("srndp-ready") !== -1) {
-          window.onSrndpReady();
+          return window.onSrndpReady();
         } else if (msg.data.indexOf("srndp-chk-session") !== -1) {
-          SRNDP.LAST_SRNDP_RESPONSE = {
+          return SRNDP.LAST_SRNDP_RESPONSE = {
             status: msg.data.substring(18)
           };
         } else if (msg.data.indexOf("srndp-login-success") !== -1) {
@@ -3114,21 +3114,18 @@ define("jstorage", function(){});
             replyMsg = msg.data.substring(20);
             obj = JSON.parse(replyMsg);
             if (obj["success"] || obj["success"] === "true") {
-              window.SRNDP_WAITING_FOR_LOGIN_MSG.resolve(Auth.getLoggedInResult(obj, false, true));
+              return window.SRNDP_WAITING_FOR_LOGIN_MSG.resolve(Auth.getLoggedInResult(obj, false, true));
             } else {
-              window.SRNDP_WAITING_FOR_LOGIN_MSG.reject(Auth.getLoginError(obj));
+              return window.SRNDP_WAITING_FOR_LOGIN_MSG.reject(Auth.getLoginError(obj));
             }
           }
         } else if (msg.data.indexOf("srndp-login-failed") !== -1) {
           if (window.SRNDP_WAITING_FOR_LOGIN_MSG != null) {
-            window.SRNDP_WAITING_FOR_LOGIN_MSG.reject();
+            return window.SRNDP_WAITING_FOR_LOGIN_MSG.reject();
           }
         } else {
-          SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data);
+          return SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data);
         }
-        return Auth.getLoginStatus().done(function(loginStatus) {
-          return $(document).trigger("srndp.statusChange", loginStatus);
-        });
       }
     };
     return Auth = {
@@ -3160,7 +3157,7 @@ define("jstorage", function(){});
             name: obj["x_name"]
           };
         }
-        that.setAccessToken(obj["access_token"], obj["expires_in"], !newUser);
+        this.setAccessToken(obj["access_token"], obj["expires_in"], !newUser);
         return new LoginStatusObject("logged_in", obj["username"], newUser, newUserObj, obj["state"], facebook, serendip);
       },
       getLoginError: function(obj) {
@@ -3208,9 +3205,9 @@ define("jstorage", function(){});
               clientFlow = false;
             }
             if (obj["success"] || obj["success"] === "true") {
-              return _this.resolve(_this.getLoggedInResult(obj, clientFlow));
+              return _this.resolve(that.getLoggedInResult(obj, clientFlow));
             } else {
-              return _this.reject(_this.getLoginError(obj));
+              return _this.reject(that.getLoginError(obj));
             }
           };
           window.onmessage = function(e) {
@@ -3406,39 +3403,25 @@ define("jstorage", function(){});
   define('main',['auth', 'api', 'objects/response', 'objects/error', 'settings', 'jquery'], function(Auth, Api, ResponseObject, ErrorObject, Settings) {
     return window.SRNDP = {
       init: function(initObject) {
-        return $.Deferred(function() {
-          var _this = this;
-          if (!initObject.clientId) {
-            this.reject(new ErrorObject("ERR_NOT_INITIALIZED"));
-          }
-          SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:" + initObject.clientId, Settings.BASE_URL);
-          return Auth.initClient(initObject.clientId).done(function(resp) {
-            return _this.resolve(resp);
-          }).fail(function(err) {
-            return _this.reject(err);
-          });
-        });
+        if (!initObject.clientId) {
+          this.reject(new ErrorObject("ERR_NOT_INITIALIZED"));
+        }
+        SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:" + initObject.clientId, Settings.BASE_URL);
+        return Auth.initClient(initObject.clientId);
       },
       api: function(endpoint, params, auth, method) {
+        var at;
         if (auth == null) {
           auth = false;
         }
         if (method == null) {
           method = 'GET';
         }
-        return $.Deferred(function() {
-          var at,
-            _this = this;
-          at = null;
-          if (auth) {
-            at = Auth.getAccessToken();
-          }
-          return Api.call(endpoint, params, auth, at, method).done(function(resp) {
-            return _this.resolve(resp);
-          }).fail(function(err) {
-            return _this.reject(err);
-          });
-        }).promise();
+        at = null;
+        if (auth) {
+          at = Auth.getAccessToken();
+        }
+        return Api.call(endpoint, params, auth, at, method);
       },
       subscribe: function(event, callback) {
         return $(document).on(event, function(e, obj) {
@@ -3472,37 +3455,16 @@ define("jstorage", function(){});
         }).promise();
       },
       activate: function() {
-        return $.Deferred(function() {
-          var _this = this;
-          return Auth.activate().done(function(resp) {
-            return _this.resolve(resp);
-          }).fail(function(err) {
-            return _this.reject(err);
-          });
-        }).promise();
+        return Auth.activate();
       },
       register: function(username, name, rememberMe, email, location, shouldActivate) {
         if (rememberMe == null) {
           rememberMe = false;
         }
-        return $.Deferred(function() {
-          var _this = this;
-          return Auth.register(username, name, rememberMe, email, location, shouldActivate).done(function(resp) {
-            return _this.resolve(resp);
-          }).fail(function(err) {
-            return _this.reject(err);
-          });
-        }).promise();
+        return Auth.register(username, name, rememberMe, email, location, shouldActivate);
       },
       getLoginStatus: function() {
-        return $.Deferred(function() {
-          var _this = this;
-          return Auth.getLoginStatus().done(function(resp) {
-            return _this.resolve(resp);
-          }).fail(function(err) {
-            return _this.reject(err);
-          });
-        }).promise();
+        return Auth.getLoginStatus();
       },
       isRegistered: function() {
         return Auth.isRegistered();

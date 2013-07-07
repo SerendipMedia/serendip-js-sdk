@@ -75,9 +75,9 @@ define [
         () ->
           afterLogin = (obj, clientFlow = false) =>
             if obj["success"] or obj["success"] is "true"
-              @resolve(@getLoggedInResult(obj,clientFlow))
+              @resolve(that.getLoggedInResult(obj,clientFlow))
             else
-              @reject(@getLoginError(obj))
+              @reject(that.getLoginError(obj))
           window.onmessage = (e) =>
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) != -1)
               obj = e.data

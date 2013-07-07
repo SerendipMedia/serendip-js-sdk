@@ -9,31 +9,14 @@ define [
 #  Define the SRNDP object
   window.SRNDP =
     init : (initObject) ->
-      return $.Deferred(
-        () ->
-          unless initObject.clientId then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
-#          init the iframe
-          SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:"+initObject.clientId,Settings.BASE_URL)
-
-          Auth.initClient(initObject.clientId).done(
-            (resp) => @resolve(resp)
-          ).fail(
-            (err) => @reject(err)
-          )
-      )
+      unless initObject.clientId then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
+      #          init the iframe
+      SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:"+initObject.clientId,Settings.BASE_URL)
+      Auth.initClient(initObject.clientId)
     api : (endpoint, params, auth = false, method = 'GET') ->
-      return $.Deferred(
-        () ->
-          at = null
-          if (auth) then at = Auth.getAccessToken();
-          Api.call(endpoint,params,auth,at,method).done(
-            (resp) =>
-              @resolve(resp)
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
-      ).promise()
+      at = null
+      if (auth) then at = Auth.getAccessToken()
+      Api.call(endpoint,params,auth,at,method)
     subscribe : (event, callback) ->
       $(document).on(event, (e,obj) ->
         callback(obj) if obj?
@@ -54,38 +37,11 @@ define [
             )
       ).promise()
     activate : () ->
-      return $.Deferred(
-        () ->
-          Auth.activate().done(
-            (resp) =>
-              @resolve(resp)
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
-      ).promise()
+      Auth.activate()
     register : (username, name, rememberMe = false, email,location, shouldActivate) ->
-      return $.Deferred(
-        () ->
-          Auth.register(username, name, rememberMe , email,location, shouldActivate).done(
-            (resp) =>
-              @resolve(resp)
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
-      ).promise()
+      Auth.register(username, name, rememberMe , email,location, shouldActivate)
     getLoginStatus : () ->
-      return $.Deferred(
-        () ->
-          Auth.getLoginStatus().done(
-            (resp) =>
-              @resolve(resp)
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
-      ).promise()
+      Auth.getLoginStatus()
     isRegistered : () ->
       Auth.isRegistered();
     logout : (facebook = false) ->
