@@ -5,6 +5,7 @@ require.config({
     },
     shim :{
         'jstorage' : ['jquery'],
+        'jquery.cookie' : ['jquery'],
         'facebook_sdk' : {
             export: 'FB'
         }

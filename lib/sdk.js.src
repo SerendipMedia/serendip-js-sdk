@@ -2057,13 +2057,14 @@ define("requireLib", function(){});
   define('objects/login_status',[], function() {
     var LoginStatusObject;
     return LoginStatusObject = (function() {
-      function LoginStatusObject(status, username, newUser, newUserObj, state, facebook_authorized) {
+      function LoginStatusObject(status, username, newUser, newUserObj, state, facebook_authorized, srndp_authorized) {
         this.status = status;
         this.username = username;
         this.newUser = newUser;
         this.newUserObj = newUserObj;
         this.state = state;
         this.facebook_authorized = facebook_authorized;
+        this.srndp_authorized = srndp_authorized;
         return;
       }
 
@@ -2081,8 +2082,9 @@ define("requireLib", function(){});
     Settings = {
       SECURE_PROTOCOL: "http://",
       BASE_API_URL: "localapi.serendip.me:9000/v1",
-      BASE_URL: "http://developers.serendip.me",
-      FB_APP_ID: '180530865322766'
+      BASE_URL: "http://local.serendip.me",
+      FB_APP_ID: '180530865322766',
+      SESSION_COOKIE_NAME: 'PLAY_SESSION'
     };
     Settings.BASE_OAUTH_URL = Settings.BASE_URL + "/auth";
     return Settings;
@@ -3099,8 +3101,31 @@ define("jstorage", function(){});
   define('auth',['objects/response', 'objects/error', 'objects/login_status', 'settings', 'api', 'jquery', 'jstorage'], function(ResponseObject, ErrorObject, LoginStatusObject, Settings, Api) {
     var Auth;
     window.onmessage = function(msg) {
+      var obj, replyMsg;
       if (msg.origin === Settings.BASE_URL) {
-        SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data);
+        if (msg.data.indexOf("srndp-ready") !== -1) {
+          window.onSrndpReady();
+        } else if (msg.data.indexOf("srndp-chk-session") !== -1) {
+          SRNDP.LAST_SRNDP_RESPONSE = {
+            status: msg.data.substring(18)
+          };
+        } else if (msg.data.indexOf("srndp-login-success") !== -1) {
+          if (window.SRNDP_WAITING_FOR_LOGIN_MSG != null) {
+            replyMsg = msg.data.substring(20);
+            obj = JSON.parse(replyMsg);
+            if (obj["success"] || obj["success"] === "true") {
+              window.SRNDP_WAITING_FOR_LOGIN_MSG.resolve(Auth.getLoggedInResult(obj, false, true));
+            } else {
+              window.SRNDP_WAITING_FOR_LOGIN_MSG.reject(Auth.getLoginError(obj));
+            }
+          }
+        } else if (msg.data.indexOf("srndp-login-failed") !== -1) {
+          if (window.SRNDP_WAITING_FOR_LOGIN_MSG != null) {
+            window.SRNDP_WAITING_FOR_LOGIN_MSG.reject();
+          }
+        } else {
+          SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data);
+        }
         return Auth.getLoginStatus().done(function(loginStatus) {
           return $(document).trigger("srndp.statusChange", loginStatus);
         });
@@ -3119,6 +3144,30 @@ define("jstorage", function(){});
         left: 0,
         top: 0
       },
+      getLoggedInResult: function(obj, facebook, serendip) {
+        var newUser, newUserObj;
+        if (facebook == null) {
+          facebook = false;
+        }
+        if (serendip == null) {
+          serendip = false;
+        }
+        newUser = obj["x_new_user"] === "true" || obj["x_new_user"];
+        if (newUser) {
+          newUserObj = {
+            username: obj["x_username"],
+            email: obj["x_email"],
+            name: obj["x_name"]
+          };
+        }
+        that.setAccessToken(obj["access_token"], obj["expires_in"], !newUser);
+        return new LoginStatusObject("logged_in", obj["username"], newUser, newUserObj, obj["state"], facebook, serendip);
+      },
+      getLoginError: function(obj) {
+        return new ErrorObject("ERR_GENERIC", {
+          "error_message": obj.error_description.replace(/\+/g, " ")
+        });
+      },
       initClient: function(clientId) {
         return $.Deferred(function() {
           var err, resp;
@@ -3132,7 +3181,11 @@ define("jstorage", function(){});
           }
         }).promise();
       },
-      login: function(network, implicit, rememberMe, state, newWindow) {
+      loginFromIframe: function(network, clientId, implicit) {
+        SRNDP.CLIENT_ID = clientId;
+        return this.login(network, implicit, false, null, true, true);
+      },
+      login: function(network, implicit, rememberMe, state, newWindow, fromIframe) {
         var that;
         if (implicit == null) {
           implicit = false;
@@ -3143,37 +3196,28 @@ define("jstorage", function(){});
         if (newWindow == null) {
           newWindow = true;
         }
+        if (fromIframe == null) {
+          fromIframe = false;
+        }
         that = this;
         return $.Deferred(function() {
           var afterLogin, authResponse, fbTokens, options, origin, params, port, url,
             _this = this;
           afterLogin = function(obj, clientFlow) {
-            var newUser, newUserObj;
             if (clientFlow == null) {
               clientFlow = false;
             }
             if (obj["success"] || obj["success"] === "true") {
-              newUser = obj["x_new_user"] === "true" || obj["x_new_user"];
-              if (newUser) {
-                newUserObj = {
-                  username: obj["x_username"],
-                  email: obj["x_email"],
-                  name: obj["x_name"]
-                };
-              }
-              that.setAccessToken(obj["access_token"], obj["expires_in"], !newUser);
-              return _this.resolve(new LoginStatusObject("logged_in", obj["username"], newUser, newUserObj, obj["state"], clientFlow));
+              return _this.resolve(_this.getLoggedInResult(obj, clientFlow));
             } else {
-              return _this.reject(new ErrorObject("ERR_GENERIC", {
-                "error_message": obj.error_description.replace(/\+/g, " ")
-              }));
+              return _this.reject(_this.getLoginError(obj));
             }
           };
           window.onmessage = function(e) {
             var obj;
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) !== -1) {
               obj = e.data;
-              if (typeof obj === "object" && obj.status === 'connected') {
+              if (typeof obj === "object") {
                 return afterLogin(obj);
               }
             }
@@ -3206,15 +3250,19 @@ define("jstorage", function(){});
             }
             params.origin = origin;
             url = url + "?" + $.param(params);
-            if ((fbTokens != null)) {
+            if (implicit) {
               return $.ajax({
                 url: url,
                 type: 'GET',
                 success: function(obj) {
-                  return afterLogin(obj, true);
+                  if (fromIframe) {
+                    return _this.resolve(obj);
+                  } else {
+                    return afterLogin(obj, true);
+                  }
                 },
-                error: function() {
-                  return this.reject(new ErrorObject("ERR_NOT_INITIALIZED"));
+                error: function(xhr, err) {
+                  return _this.reject(new ErrorObject("ERR_NOT_INITIALIZED"));
                 }
               });
             } else {
@@ -3240,17 +3288,18 @@ define("jstorage", function(){});
         var that;
         that = this;
         return $.Deferred(function() {
-          var at, facebook_authorized;
+          var at, facebook_authorized, srndp_authorized;
+          srndp_authorized = (SRNDP.LAST_SRNDP_RESPONSE != null) && SRNDP.LAST_SRNDP_RESPONSE.status === "logged_in";
           facebook_authorized = (SRNDP.LAST_FB_RESPONSE != null) && SRNDP.LAST_FB_RESPONSE.status === "connected";
           at = that.getAccessToken();
           if (at != null) {
             if (that.isRegistered()) {
-              return this.resolve(new LoginStatusObject("logged_in", null, null, null, null, facebook_authorized));
+              return this.resolve(new LoginStatusObject("logged_in", null, null, null, null, facebook_authorized, srndp_authorized));
             } else {
-              return this.resolve(new LoginStatusObject("signing_up", null, null, null, null, facebook_authorized));
+              return this.resolve(new LoginStatusObject("signing_up", null, null, null, null, facebook_authorized, srndp_authorized));
             }
           } else {
-            return this.resolve(new LoginStatusObject("logged_out", null, null, null, null, facebook_authorized));
+            return this.resolve(new LoginStatusObject("logged_out", null, null, null, null, facebook_authorized, srndp_authorized));
           }
         }).promise();
       },
@@ -3307,6 +3356,7 @@ define("jstorage", function(){});
         that = this;
         return $.Deferred(function() {
           that.removeAccessToken();
+          $(document).trigger("srndp.statusChange", new LoginStatusObject("logged_out"));
           this.resolve(new ResponseObject());
           return Api.call('/auth/logout.json', null, true, that.getAccessToken()).promise();
         }).promise();
@@ -3354,13 +3404,14 @@ define("jstorage", function(){});
 // Generated by CoffeeScript 1.6.3
 (function() {
   define('main',['auth', 'api', 'objects/response', 'objects/error', 'settings', 'jquery'], function(Auth, Api, ResponseObject, ErrorObject, Settings) {
-    window.SRNDP = {
+    return window.SRNDP = {
       init: function(initObject) {
         return $.Deferred(function() {
           var _this = this;
           if (!initObject.clientId) {
             this.reject(new ErrorObject("ERR_NOT_INITIALIZED"));
           }
+          SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:" + initObject.clientId, Settings.BASE_URL);
           return Auth.initClient(initObject.clientId).done(function(resp) {
             return _this.resolve(resp);
           }).fail(function(err) {
@@ -3408,16 +3459,17 @@ define("jstorage", function(){});
         }
         return $.Deferred(function() {
           var _this = this;
-          return Auth.login(network, implicit, rememberMe, state, newWindow).done(function(resp) {
-            return _this.resolve(resp);
-          }).fail(function(err) {
-            return _this.reject(err);
-          });
+          if (network === "serendip") {
+            SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-login-srndp", Settings.BASE_URL);
+            return window.SRNDP_WAITING_FOR_LOGIN_MSG = this;
+          } else {
+            return Auth.login(network, implicit, rememberMe, state, newWindow).done(function(resp) {
+              return _this.resolve(resp);
+            }).fail(function(err) {
+              return _this.reject(err);
+            });
+          }
         }).promise();
-      },
-      logoutFromFB: function() {
-        SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb", Settings.BASE_URL);
-        return this.logout();
       },
       activate: function() {
         return $.Deferred(function() {
@@ -3455,7 +3507,13 @@ define("jstorage", function(){});
       isRegistered: function() {
         return Auth.isRegistered();
       },
-      logout: function() {
+      logout: function(facebook) {
+        if (facebook == null) {
+          facebook = false;
+        }
+        if (facebook) {
+          SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb", Settings.BASE_URL);
+        }
         return $.Deferred(function() {
           var _this = this;
           return Auth.logout().done(function(resp) {
@@ -3466,7 +3524,6 @@ define("jstorage", function(){});
         }).promise();
       }
     };
-    return window.onSrndpReady();
   });
 
 }).call(this);
@@ -3474,7 +3531,7 @@ define("jstorage", function(){});
 (function(){
     var iframe = document.createElement('iframe');
     iframe.style.display = "none";
-    iframe.src = 'http://developers.serendip.me/sdk.html'
+    iframe.src = 'http://local.serendip.me/sdk.html'
     iframe.src += "#origin="
     if (document.location.origin == null)
         iframe.src += (document.location.protocol + "//" + document.location.hostname)
@@ -3482,15 +3539,6 @@ define("jstorage", function(){});
         iframe.src += document.location.origin
     window.SRNDP_FB_IFRAME = iframe
     document.body.appendChild(iframe);
-//     listen to srnd ready message
-    onSRNDPMsg = function(event) {
-        if (event.origin.indexOf("developers.serendip.me") == -1) return;
-        switch (event.data) {
-            case "serendip-sdk-ready": onSrndpReady();
-            break;
-        }
-    }
-    window.addEventListener("message", onSRNDPMsg, false);
 }());
 
 require.config({

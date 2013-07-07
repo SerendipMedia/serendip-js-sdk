@@ -12,6 +12,9 @@ define [
       return $.Deferred(
         () ->
           unless initObject.clientId then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
+#          init the iframe
+          SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:"+initObject.clientId,Settings.BASE_URL)
+
           Auth.initClient(initObject.clientId).done(
             (resp) => @resolve(resp)
           ).fail(
@@ -38,13 +41,17 @@ define [
     login : (network, implicit = false, rememberMe = false, state, newWindow = true) ->
       return $.Deferred(
         () ->
-          Auth.login(network,implicit,rememberMe,state,newWindow).done(
-            (resp) =>
-              @resolve(resp)
-          ).fail(
-            (err) =>
-              @reject(err)
-          )
+          if (network == "serendip")
+            SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-login-srndp",Settings.BASE_URL)
+            window.SRNDP_WAITING_FOR_LOGIN_MSG = @
+          else
+            Auth.login(network,implicit,rememberMe,state,newWindow).done(
+              (resp) =>
+                @resolve(resp)
+            ).fail(
+              (err) =>
+                @reject(err)
+            )
       ).promise()
     activate : () ->
       return $.Deferred(
@@ -94,6 +101,3 @@ define [
               @reject(err)
           )
       ).promise()
-
-  # call serendip ready
-  window.onSrndpReady()

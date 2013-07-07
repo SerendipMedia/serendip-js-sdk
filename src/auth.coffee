@@ -10,7 +10,25 @@ define [
   # catch FB message
   window.onmessage = (msg) ->
       if (msg.origin == Settings.BASE_URL)
-        SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
+        if msg.data.indexOf("srndp-ready") != -1
+          # call serendip ready
+          window.onSrndpReady()
+        else if msg.data.indexOf("srndp-chk-session") != -1
+          SRNDP.LAST_SRNDP_RESPONSE =
+            status : msg.data.substring(18)
+        else if msg.data.indexOf("srndp-login-success") != -1
+          if window.SRNDP_WAITING_FOR_LOGIN_MSG?
+            replyMsg = msg.data.substring(20)
+            obj = JSON.parse(replyMsg)
+            if obj["success"] or obj["success"] is "true"
+              window.SRNDP_WAITING_FOR_LOGIN_MSG.resolve(Auth.getLoggedInResult(obj,false,true))
+            else
+              window.SRNDP_WAITING_FOR_LOGIN_MSG.reject(Auth.getLoginError(obj))
+        else if msg.data.indexOf("srndp-login-failed") != -1
+          if window.SRNDP_WAITING_FOR_LOGIN_MSG?
+            window.SRNDP_WAITING_FOR_LOGIN_MSG.reject()
+        else
+          SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
         Auth.getLoginStatus().done( (loginStatus) ->
           $(document).trigger("srndp.statusChange",loginStatus)
         )
@@ -26,6 +44,17 @@ define [
       scrollbars : 0
       left : 0
       top : 0
+    getLoggedInResult : (obj,facebook = false, serendip = false) ->
+      newUser =  (obj["x_new_user"] is "true" or obj["x_new_user"])
+      if newUser
+        newUserObj =
+          username : obj["x_username"]
+          email : obj["x_email"]
+          name : obj["x_name"]
+      @setAccessToken(obj["access_token"],obj["expires_in"],!newUser)
+      new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"],facebook,serendip)
+    getLoginError : (obj) ->
+      new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")})
     initClient : (clientId) ->
       return $.Deferred(
         () ->
@@ -37,22 +66,18 @@ define [
             err = new ErrorObject()
             @reject(err)
       ).promise()
-    login : (network, implicit = false, rememberMe = false, state, newWindow = true) ->
+    loginFromIframe : (network, clientId,implicit) ->
+      SRNDP.CLIENT_ID = clientId
+      @login(network,implicit, false,null,true,true)
+    login : (network, implicit = false, rememberMe = false, state, newWindow = true, fromIframe = false) ->
       that = @
       return $.Deferred(
         () ->
           afterLogin = (obj, clientFlow = false) =>
             if obj["success"] or obj["success"] is "true"
-              newUser =  (obj["x_new_user"] is "true" or obj["x_new_user"])
-              if newUser
-                newUserObj =
-                  username : obj["x_username"]
-                  email : obj["x_email"]
-                  name : obj["x_name"]
-              that.setAccessToken(obj["access_token"],obj["expires_in"],!newUser)
-              @resolve(new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"],clientFlow))
+              @resolve(@getLoggedInResult(obj,clientFlow))
             else
-              @reject(new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")}))
+              @reject(@getLoginError(obj))
           window.onmessage = (e) =>
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) != -1)
               obj = e.data
@@ -66,7 +91,7 @@ define [
               response_type : "token"
               sdk : true
               rememberMe : rememberMe
-#              implpicit login
+#              implicit login
             if network is "facebook" and SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected" and implicit
               authResponse = SRNDP.LAST_FB_RESPONSE.authResponse
               fbTokens =
@@ -81,13 +106,16 @@ define [
               origin = origin + ":" + port
             params.origin = origin
             url = url + "?" + $.param(params)
-            if (fbTokens?)
+            if (implicit)
               $.ajax(
                 url : url
                 type : 'GET'
-                success : (obj) ->
-                  afterLogin(obj,true)
-                error : () ->
+                success : (obj) =>
+                  if (fromIframe)
+                    @resolve(obj)
+                  else
+                    afterLogin(obj,true)
+                error : (xhr,err) =>
                   @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
               )
             else
@@ -104,15 +132,16 @@ define [
       that = @
       return $.Deferred(
         () ->
+          srndp_authorized =  (SRNDP.LAST_SRNDP_RESPONSE? and SRNDP.LAST_SRNDP_RESPONSE.status is "logged_in")
           facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
           at = that.getAccessToken()
           if at?
             if that.isRegistered()
-              @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized))
+              @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized,srndp_authorized))
             else
-              @resolve(new LoginStatusObject("signing_up",null,null,null,null,facebook_authorized))
+              @resolve(new LoginStatusObject("signing_up",null,null,null,null,facebook_authorized,srndp_authorized))
           else
-            @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized))
+            @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized,srndp_authorized))
       ).promise()
     register : (username, name, rememberMe = false, email,location, shouldActivate) ->
       that = @
