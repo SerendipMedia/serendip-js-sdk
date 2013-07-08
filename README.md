@@ -253,9 +253,9 @@ Fired whenever the login status of the user changes. Passes in a LoginObject obj
 
 #### 0.1 July 08, 2013
 
-Deployable first version
-Authentication Flow
-API utility call
+Deployable first version<br/>
+Authentication flow<br/>
+API utility call <br/>
 Events
 
 ### License
