@@ -128,7 +128,7 @@ Clients which provide a single screen registration flow , shouldn’t use this c
 Clients supporting a multi-screen registration process, should pass false to the shouldActivate flag on registration call, and at the end of the full registration process should call this function for activation. 
 
 
-** Not yet implemented **
+**Not yet implemented**
 
 ##### ResponseObject SRNDP.connect(String network, String state, boolean newWindow = true)
 
@@ -140,7 +140,7 @@ State is an optional parameters that if passed will be echoed back to the callba
 
 If newWindow is set to true, the popup will be invoked as a popup; otherwise it will be invoked in-place.
 
-** Not yet implemented **
+**Not yet implemented**
 
 ##### ResponseObject SRNDP.disconnect(String network)
 
@@ -157,7 +157,7 @@ Refer to <a href="https://serendip.3scale.net/docs">API Specification Docs</a> f
 
 Subscribes to an event. Whenever the event is fired, the callback will be called passing in an Object.
 
-See Events section for list of supported events
+See <a href="#events-1">Events</a> section for list of supported events
 
 ##### ResponseObject SRNDP.unsubscribe(String eventName,Function callback)
 
@@ -165,7 +165,7 @@ Removes the event handler from this specific event.
 
 ## UI
 
-** Not yet implemented **
+**Not yet implemented**
 
 ##### Object SRNDP.ui(String dialog, Object params)
 
@@ -187,7 +187,7 @@ status: String - only value is ‘ok’ which represents a successful operation 
 
 Details about the error that occurred. ErrorObject is typicaly returned with a call reject, and should be caught an handled with the fail callback.
 
-code: String - code describing the error (see Error Codes)
+code: String - code describing the error (see <a href="#error-codes">Error Codes</a>)
 msg : String - a human readable message describing the error
 
 ##### InitObject
@@ -236,24 +236,24 @@ Fired whenever the login status of the user changes. Passes in a LoginObject obj
 
 ## Error Codes
 
-** ERR_NOT_INITIALIZED ** - attempt to access to the SDK without first initializing it using the SRNDP.init call
-** ERR_NOT_LOGGED_IN_OR_INVALID_TOKEN ** - attempt to access an authenticated API endpoint without a valid access token (user might be logged out or token expired)
-** ERR_INVALID_API_CALL ** - API server returned an error. The msg param will include more details.
-** ERR_AUTHENTICATION_REQUIRED ** - attempt to call an authenticated endpoint without setting the auth flag to true
-** ERR_NETWORK_ALREADY_CONNECTED ** - trying to add a second network which is already attached to another user
-** ERR_CANNOT_DISCONNECT_ONLY_NETWORK ** - trying to disconnect only network connected
-** ERR_INSECURED_CALL ** - this is typically thrown due to cross-origin security 
+**ERR_NOT_INITIALIZED** - attempt to access to the SDK without first initializing it using the SRNDP.init call
+**ERR_NOT_LOGGED_IN_OR_INVALID_TOKEN** - attempt to access an authenticated API endpoint without a valid access token (user might be logged out or token expired)
+**ERR_INVALID_API_CALL** - API server returned an error. The msg param will include more details.
+**ERR_AUTHENTICATION_REQUIRED** - attempt to call an authenticated endpoint without setting the auth flag to true
+**ERR_NETWORK_ALREADY_CONNECTED** - trying to add a second network which is already attached to another user
+**ERR_CANNOT_DISCONNECT_ONLY_NETWORK** - trying to disconnect only network connected
+**ERR_INSECURED_CALL** - this is typically thrown due to cross-origin security 
 
-## Change Log
+### Change Log
 
-### 0.1 July 08, 2013
+#### 0.1 July 08, 2013
 
 Deployable first version
 Authentication Flow
 API utility call
 Events
 
-## License
+### License
 
 Copyright 2013 Serendip Media, Inc.
 
