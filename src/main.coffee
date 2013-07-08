@@ -21,6 +21,9 @@ define [
       $(document).on(event, (e,obj) ->
         callback(obj) if obj?
       )
+    unsubcribe : (event, callback) ->
+      if callback?
+        $(document).off(event,callback)
     login : (network, implicit = false, rememberMe = false, state, newWindow = true) ->
       return $.Deferred(
         () ->
@@ -56,4 +59,14 @@ define [
             (err) =>
               @reject(err)
           )
+      ).promise()
+    connect : (network, state, newWindow = true) ->
+      return $.Deferred(
+        () ->
+          @reject(new ErrorObject("ERR_NOT_SUPPORTED"))
+      ).promise()
+    disconnect : (network) ->
+      return $.Deferred(
+        () ->
+          @reject(new ErrorObject("ERR_NOT_SUPPORTED"))
       ).promise()

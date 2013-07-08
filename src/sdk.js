@@ -1,3 +1,12 @@
+/**
+ * @license Serendip JavaScript SDK v0.1
+ * https://github.com/SerendipMedia/serendip-js-sdk
+ *
+ * Copyright 2013 Serendip Media inc.
+ * Released under the MIT License
+ */
+
+
 (function(){
     var iframe = document.createElement('iframe');
     iframe.style.display = "none";

@@ -2030,7 +2030,7 @@ define("requireLib", function(){});
         ERR_INVALID_API_CALL: "An invalid API call.",
         ERR_AUTHENTICATION_REQUIRED: "Endpoint requires authentication. Use 'auth' in SRNDP.api",
         ERR_INSECURED_CALL: "An insecure attempt to access API (check cross-origin policy).",
-        ERR_NOT_SUPPORTED: "Option not supported in current version"
+        ERR_NOT_SUPPORTED: "Option or call is not supported in current version"
       };
 
       function ErrorObject(code, data, throwable) {
@@ -3306,6 +3306,9 @@ define("jstorage", function(){});
         if (rememberMe == null) {
           rememberMe = false;
         }
+        if (shouldActivate == null) {
+          shouldActivate = true;
+        }
         that = this;
         return $.Deferred(function() {
           var params,
@@ -3431,6 +3434,11 @@ define("jstorage", function(){});
           }
         });
       },
+      unsubcribe: function(event, callback) {
+        if (callback != null) {
+          return $(document).off(event, callback);
+        }
+      },
       login: function(network, implicit, rememberMe, state, newWindow) {
         if (implicit == null) {
           implicit = false;
@@ -3485,11 +3493,32 @@ define("jstorage", function(){});
             return _this.reject(err);
           });
         }).promise();
+      },
+      connect: function(network, state, newWindow) {
+        if (newWindow == null) {
+          newWindow = true;
+        }
+        return $.Deferred(function() {
+          return this.reject(new ErrorObject("ERR_NOT_SUPPORTED"));
+        }).promise();
+      },
+      disconnect: function(network) {
+        return $.Deferred(function() {
+          return this.reject(new ErrorObject("ERR_NOT_SUPPORTED"));
+        }).promise();
       }
     };
   });
 
 }).call(this);
+
+/**
+ * @preserve Copyright 2009 SomeThirdParty.
+ * Here is the full license text and copyright
+ * notice for this file. Note that the notice can span several
+ * lines and is only terminated by the closing star and slash:
+ */
+
 
 (function(){
     var iframe = document.createElement('iframe');

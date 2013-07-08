@@ -143,7 +143,7 @@ define [
           else
             @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized,srndp_authorized))
       ).promise()
-    register : (username, name, rememberMe = false, email,location, shouldActivate) ->
+    register : (username, name, rememberMe = false, email,location, shouldActivate=true) ->
       that = @
       return $.Deferred(
         () ->
