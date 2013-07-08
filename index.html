@@ -2,11 +2,75 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>Serendip Developers Protal</title>
+    <title>Serendip Developers Portal</title>
+    <style type="text/css">
+        .h1 {
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .h2 {
+            font-size: 20px;
+            text-decoration: underline;
+        }
+        .h3 {
+            font-size: 18px;
+            color: #ff4500;
+        }
+    </style>
 </head>
 <body>
-<h1>Welcome to Developer Portal</h1>
 
-<h3>For docs about JS SDK, See <a href="https://github.com/SerendipMedia/serendip-js-sdk">our github page</a></h3>
+<header class="h1"><img src="logo.png"><div>Welcome to Serendip Developers Portal</div></header>
+<article>
+    <p>Yes, We know this page looks Ugly ;-(<br/><br/>
+        But Hey! - this is only because we are so busy creating awesome features for you at <a href="serendip.me" target="_blank">serendip.me</a><br/>
+        Designers are a scarce resource and we prefer them working on the great features we have on our roadmap.<br/>
+    </p>
+    <p>
+        But we do want you to go and create some awesome apps using our developer tools, so we just went ahead and put
+        all the important links on this ugly page.<br/>
+        We promise to beautify it sometimes... in the future ... <br/>
+        Sometimes .....
+    </p>
+</article>
+<hr/>
+<article>
+    <header class="h2"><a name="api">API Specifications</a></header>
+    <p>
+        Serendip provides a full-fledged API that enables developers a complete access to all Serendip data and operations.<br/>
+        A client_id must be obrained first in order to use the API.<br/><br/>
+        There are two use cases for the use of Serendip API:<br/>
+        <ul>
+            <li>Public Plan - rate-limited access to public non-personalized data such as charts and DJ info.<br/>
+            Developers can obtain a serendip-public client id by signing up <a href="https://serendip.3scale.net/signup">here</a></li>
+            <li>Full Plan - to upgrade your plan to get a high-rate full access to our API, please email us at <a href="mailto:api@serendip.me">api@serendip.me</a></li>
+        </ul>
+    </p>
+    <section>
+        <header class="h3">Resources</header>
+        <ul>
+            <li><a href="https://serendip.3scale.net/">API Developers Guidelines</a></li>
+            <li><a href="https://serendip.3scale.net/docs">API Documentation (Active Docs)</a></li>
+        </ul>
+    </section>
+</article>
+<hr/>
+<article>
+    <header class="h2"><a name="js-sdk">JavaScript SDK</a></header>
+    <p>
+        Developers who wish to develop web-based app using Serendip API are encouraged to use our JavaScript SDK.<br/>
+        Serendip JavaScript SDK takes out the heavylifting of configuring and managing the API common aspects, such as
+        authentication, API calls and UI aspects.<br/>
+        The JavaScript SDK is designed as an asynchronous service model upon the Deffered design pattern.
+    </p>
+    <section>
+        <header class="h3">Resources</header>
+        <ul>
+            <li><a href="https://github.com/SerendipMedia/serendip-js-sdk">Project Home (github)</a></li>
+            <li><a href="http://developers.serendip.me/demo/index.html">Demo Application</a></li>
+        </ul>
+    </section>
+</article>
 </body>
 </html>

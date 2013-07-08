@@ -3,13 +3,35 @@
 <html>
 <head>
     <title>Serendip SDK Demo App</title>
+
+    <!--This is a demo simplestic app that demonstartes how a client may
+        interact with the Serendip JavaScript API
+    -->
+
     <script src="/src/jquery-1.10.1.min.js"></script>
+
     <script>
+
+        /** onSrndpReady is the entry point for interacting with SDK
+         *  the global variable SRNDP is accessible at this point
+         */
+
         window.onSrndpReady = function() {
-            // Generic error handling
+
+            /** Here we define few methods to hndle common use cases in the app **/
+
+            // a global error handling method. it will throw an exception at the console, for every error returned from the SDK
+
             errFunc = function(error) {
                 if (error.throwable) throw error.msg;
             };
+
+            // after a successful login, we should check if this is a new user or now
+            // for a new user, we will redirect to a (degenrated) signup for
+           // for an existing user we will redirect to the login screen
+           // the 'facebook_authorized' is used, to allow the 'SignUp With Another User' option
+           // in the case of a facebook implicit login
+
             loginFunc = function(loginObj) {
                 if (loginObj.newUser) {
                     nu = loginObj.newUserObj;
@@ -23,6 +45,14 @@
                         showMoreLoginOptions();
                 }
             };
+
+            // this is our callback for the "srndp.statusChange" evenet
+            // generally speaking, it listens to changes which are triggered
+            // if the client realizes it is logged in already as facebook or srndp
+            // in such case, we would like to initiate a call to SRNDP.login
+            // to trigger an implicit 'serendip' or 'facebook' login
+            // (in this order of precedence)
+
             onStatusChange = function(resp) {
                 if (resp.status == "logged_in") {
                     showLoggedIn();
@@ -45,6 +75,7 @@
                 }
             }
 
+            // some basic methods to handle the UI
             clearUI = function() {
                 $("#login").hide();
                 $("#hello").hide();
@@ -53,6 +84,8 @@
                 $("#login").show();
                 $("#hello").hide();
             };
+            // if we are logged in, we will call showProfile to
+            // call the API and get some DJ data
             showLoggedIn = function(newUser) {
                 $("#hello").show();
                 $("#more_login_options").hide();
@@ -74,6 +107,8 @@
             clearAllMessages = function() {
                 $("#message").empty();
             };
+            // call the API with the logged in user, to get info about the DJ
+            // once API returns, we display the avatar and name of the user/DJ
             showProfile = function() {
                 clearAllMessages();
                 SRNDP.api("/dj/info.json",{},true).done(
@@ -84,7 +119,10 @@
                 ).fail(errFunc);
             }
 
-            // init the SRNDP JS SDK
+            // init the SRNDP JS SDK, with the app client ID
+            // we also subscribe to 'srndp.statusChange' to get notified
+            // when the loginObject is updated
+
             SRNDP.init({
                 clientId      : '98f3cf75'
             }).done(
@@ -96,13 +134,13 @@
                     }
                 }
             ).fail(errFunc);
-
-            // Additional initialization code such as adding Event Listeners goes here
         };
+
+        // Settings click handlers to links in our page
         $(document).ready(
             function() {
-                <!--Set click event handler for auth ops -->
 
+                // Facebook explicit login
                 $("#login-facebook").click(
                     function(e) {
                         e.preventDefault();
@@ -111,6 +149,8 @@
                         }
                     }
                 );
+
+                // Twitter explicit login
                 $("#login-twitter, #with_twitter").click(
                     function(e) {
                         e.preventDefault();
@@ -120,6 +160,8 @@
                     }
                 );
 
+                // Logout from app and facebook
+                // to allow logging-in with another FB user
                 $("#another_user").click(
                         function(e) {
                             e.preventDefault();
@@ -128,6 +170,9 @@
                             }
                         }
                 )
+
+                // Register to the service as a new user
+                // We will pass all the suggested values as the actual values for the new user
                 $("#register").click(
                     function(e) {
                         e.preventDefault();
@@ -137,6 +182,7 @@
                     }
                 );
 
+                // Logout from app
                 $("#logout").click(
                     function(e) {
                         e.preventDefault();
@@ -148,18 +194,19 @@
             }
         )
 </script>
-    <!-- Load the SDK asynchronously -->
 
-    <script>
-        (function(d, s, id){
-            var js, sjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
-            js = d.createElement(s); js.id = id;
-            js.src = "http://developers.serendip.me/lib/sdk.js";
-            sjs.parentNode.insertBefore(js, sjs);
-        })(document, 'script', 'srndp-jssdk');
+<!-- Load the SDK asynchronously -->
 
-    </script>
+<script>
+    (function(d, s, id){
+        var js, sjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "http://developers.serendip.me/lib/sdk.js";
+        sjs.parentNode.insertBefore(js, sjs);
+    })(document, 'script', 'srndp-jssdk');
+
+</script>
 
 </head>
 <body>

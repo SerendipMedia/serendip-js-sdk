@@ -16,8 +16,13 @@ The first call to the SDK must always be **SRNDP.init** passing the configuratio
 
 The following snippet is a full example of how to load and init the SRNDP JS SDK - 
 
-<pre class="codepen" data-height="300" data-type="result" data-href="BzaLI" data-user="asafatzmon" data-safe="true"><code></code><a href="http://codepen.io/asafatzmon/pen/BzaLI">Check out this Pen!</a></pre>
-<script async src="http://codepen.io/assets/embed/ei.js"></script>
+<pre><code>((function(d, s, id){
+        var js, sjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "http://developers.serendip.me/lib/sdk.js";
+        sjs.parentNode.insertBefore(js, sjs);
+    })(document, 'script', 'srndp-jssdk');</code></pre>
 
 ## Demo App
 
