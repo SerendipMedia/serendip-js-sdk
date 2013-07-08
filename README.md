@@ -1,4 +1,4 @@
 serendip-js-sdk
 ===============
 
-Serendip JavaScript SDK
+This is the Serendip JS SDK
