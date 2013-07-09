@@ -1,5 +1,5 @@
 /**
- * @license Serendip JavaScript SDK v0.1
+ * @license Serendip JavaScript SDK v0.2
  * https://github.com/SerendipMedia/serendip-js-sdk
  *
  * Copyright 2013 Serendip Media inc.
@@ -10,7 +10,7 @@
 (function(){
     var iframe = document.createElement('iframe');
     iframe.style.display = "none";
-    iframe.src = 'http://serendip.me/sdk.html'
+    iframe.src = 'http://local.serendip.me/sdk.html'
     iframe.src += "#origin="
     if (document.location.origin == null)
         iframe.src += (document.location.protocol + "//" + document.location.hostname)
@@ -20,7 +20,7 @@
     document.body.appendChild(iframe);
 }());
 
-require.config({
+requirejs.config({
     paths : {
         jquery : 'jquery-1.10.1.min'
     },
@@ -29,7 +29,7 @@ require.config({
     },
     config : {
         'cs!settings' : {
-            env : 'prod',
+            env : 'dev',
             'dev' : {
                 SECURE_PROTOCOL : "http://",
                 BASE_API_URL : "localapi.serendip.me:9000/v1",
@@ -48,4 +48,4 @@ require.config({
     }
 });
 
-require(['cs!main']);
+requirejs(['cs!main']);

@@ -63,7 +63,7 @@ endpoint should hold the API endpoint as defined in the Active Docs.
 Endpoint-specific params should be passed with the params object.
 (Please note that the cliend_it and optional auth_token params will be added automatically to the call).
 
-The response will be returned as a generic object which in practive will hold the return data as defined in the <a href="https://serendip.3scale.net/docs">Active Docs</a>.
+The response will be returned as a generic object which in practice will hold the return data as defined in the <a href="https://serendip.3scale.net/docs">Active Docs</a>.
 
 In general, all Serendip API endpoints are defined as ‘GET’ methods, and hence the method parameter should not be overwritten. However, the support for other HTTP methods is provided here for future proof.
 
@@ -107,7 +107,15 @@ If the rememberMe flag is set to true, the login process will result in a long-t
 
 State is an optional parameters that if passed will be echoed back to the callback function
 
-If newWindow is set to true, the dialog will be invoked as a popup; otherwise it will be invoked in-place. (Not yet implemented, currently only popup is supported)
+**In-Place Authentication**
+
+If newWindow is set to true, the dialog will be invoked as a popup; otherwise it will be invoked in-place. 
+
+Unlike a popup login, we cannot use the Deferred done and fail callbacks for in-place authentication, since the Deferred object cannot be preserved across multiple pages.
+
+Instead done and fail callbacks must be attached to the global window object under the names onReturnFromLogin and onError, respectively.
+
+See the twitter login in the demo app. 
 
 ##### ResponseObject SRNDP.logout(boolean facebook = false)
 
@@ -117,7 +125,7 @@ If facebook is true, will also log out from FB. This is provided to enable users
 
 ##### boolean SRNDP.isRegistered()
 
-(synchronous) if true, the user is active in the system, Otherwise, the user is still in a registartion process.
+(synchronous) if true, the user is active in the system, Otherwise, the user is still in a registration process.
 A non-registered user can only use the register authenticated API endpoint. All other calls will result in a ERR_AUTHENTICATION_REQUIRED error.
 
 ##### ResponseObject SRNDP.register(String username, String name, boolean rememberMe, String email, String location, boolean shouldActivate)
@@ -190,7 +198,7 @@ status: String - only value is ‘ok’ which represents a successful operation 
  
 ##### ErrorObject
 
-Details about the error that occurred. ErrorObject is typicaly returned with a call reject, and should be caught an handled with the fail callback.
+Details about the error that occurred. ErrorObject is typically returned with a call reject, and should be caught an handled with the fail callback.
 
 code: String - code describing the error (see <a href="#error-codes">Error Codes</a>)
 msg : String - a human readable message describing the error
@@ -257,6 +265,10 @@ Deployable first version<br/>
 Authentication flow<br/>
 API utility call <br/>
 Events
+
+#### 0.2 July 09, 2013
+
+In-place Authentication login
 
 ### License
 

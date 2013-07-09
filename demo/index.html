@@ -18,21 +18,24 @@
 
         window.onSrndpReady = function() {
 
-            /** Here we define few methods to hndle common use cases in the app **/
+            /** Here we define few methods to handle common use cases in the app **/
+            /** onError and onReturnFromLogin must be attached to window object
+             * To allow an in-place authentication that we will use for Twitter login
+             */
 
             // a global error handling method. it will throw an exception at the console, for every error returned from the SDK
 
-            errFunc = function(error) {
+            window.onError = errFunc = function(error) {
                 if (error.throwable) throw error.msg;
             };
 
             // after a successful login, we should check if this is a new user or now
-            // for a new user, we will redirect to a (degenrated) signup for
+            // for a new user, we will redirect to a (degenerated) signup for
            // for an existing user we will redirect to the login screen
            // the 'facebook_authorized' is used, to allow the 'SignUp With Another User' option
            // in the case of a facebook implicit login
 
-            loginFunc = function(loginObj) {
+            window.onReturnFromLogin = loginFunc = function(loginObj) {
                 if (loginObj.newUser) {
                     nu = loginObj.newUserObj;
                     window.NEW_USER_OBJ = nu;
@@ -140,7 +143,7 @@
         $(document).ready(
             function() {
 
-                // Facebook explicit login
+                // Facebook explicit login with a popup
                 $("#login-facebook").click(
                     function(e) {
                         e.preventDefault();
@@ -151,11 +154,14 @@
                 );
 
                 // Twitter explicit login
+                // For Twitter we are using an in-place registartion
+                // The browser redirects to twitter login page and then back to our main page
+                // Auth details are parsed from hash values when returned
                 $("#login-twitter, #with_twitter").click(
                     function(e) {
                         e.preventDefault();
                         if (typeof SRNDP != 'undefined') {
-                            SRNDP.login("twitter").done(loginFunc).fail(errFunc);
+                            SRNDP.login("twitter",false,false,null,false).done(loginFunc).fail(errFunc);
                         }
                     }
                 );
@@ -202,7 +208,7 @@
         var js, sjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) {return;}
         js = d.createElement(s); js.id = id;
-        js.src = "http://developers.serendip.me/lib/sdk.js";
+        js.src = "http://local.serendip.me:8000/lib/sdk.js";
         sjs.parentNode.insertBefore(js, sjs);
     })(document, 'script', 'srndp-jssdk');
 

@@ -4,15 +4,19 @@ define [
   'cs!objects/login_status'
   'cs!settings'
   'cs!api'
+  'cs!utils'
   'jquery'
   'jstorage'
-], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api) ->
+], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api,Utils) ->
+#  on every page load we will check if we return from login
   # catch FB message
   window.onmessage = (msg) ->
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
           # call serendip ready
           window.onSrndpReady()
+#          check if after login
+          Auth.checkIfAfterLogin()
         else if msg.data.indexOf("srndp-chk-session") != -1
           SRNDP.LAST_SRNDP_RESPONSE =
             status : msg.data.substring(18)
@@ -44,6 +48,17 @@ define [
       scrollbars : 0
       left : 0
       top : 0
+    checkIfAfterLogin : () ->
+      hash = window.location.hash
+      d = @getDeferredLogin()
+      if d? and hash? and window.onReturnFromLogin?
+        @clearDeferredLogin()
+        Utils.eliminateHashPart()
+        obj = Utils.parseToObj(hash.substring(1))
+        if obj? and obj["success"] or obj["success"] is "true"
+          onReturnFromLogin(@getLoggedInResult(obj))
+        else
+          if onError? then onError(@getLoginError(obj))
     getLoggedInResult : (obj,facebook = false, serendip = false) ->
       newUser =  (obj["x_new_user"] is "true" or obj["x_new_user"])
       if newUser
@@ -90,7 +105,9 @@ define [
               client_id : SRNDP.CLIENT_ID
               response_type : "token"
               sdk : true
+              popup : newWindow
               rememberMe : rememberMe
+              implicit : implicit
 #              implicit login
             if network is "facebook" and SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected" and implicit
               authResponse = SRNDP.LAST_FB_RESPONSE.authResponse
@@ -100,11 +117,7 @@ define [
                 network_expiration : authResponse.expiresIn
               $.extend(params,fbTokens)
             url = Settings.BASE_OAUTH_URL + that.LOGIN_ENDPOINT
-            origin = window.location.protocol + "//"  +window.location.hostname
-            port = window.location.port
-            if port?
-              origin = origin + ":" + port
-            params.origin = origin
+            params.origin = window.location.href
             url = url + "?" + $.param(params)
             if (implicit)
               $.ajax(
@@ -124,24 +137,27 @@ define [
                             {width : 535, height: 463}
                           else
                             {width : 535, height: 663}
-                window.open(url,"_blank",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
+                window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
               else
-                @reject(new ErrorObject("ERR_NOT_SUPPORTED",{"error_message" : "newWindow=false not supported"}))
+                that.deferLogin()
+                document.location = url
       ).promise()
     getLoginStatus : () ->
       that = @
       return $.Deferred(
         () ->
-          srndp_authorized =  (SRNDP.LAST_SRNDP_RESPONSE? and SRNDP.LAST_SRNDP_RESPONSE.status is "logged_in")
-          facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
-          at = that.getAccessToken()
-          if at?
-            if that.isRegistered()
-              @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized,srndp_authorized))
+          d = that.getDeferredLogin()
+          unless d?
+            srndp_authorized =  (SRNDP.LAST_SRNDP_RESPONSE? and SRNDP.LAST_SRNDP_RESPONSE.status is "logged_in")
+            facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
+            at = that.getAccessToken()
+            if at?
+              if that.isRegistered()
+                @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized,srndp_authorized))
+              else
+                @resolve(new LoginStatusObject("signing_up",null,null,null,null,facebook_authorized,srndp_authorized))
             else
-              @resolve(new LoginStatusObject("signing_up",null,null,null,null,facebook_authorized,srndp_authorized))
-          else
-            @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized,srndp_authorized))
+              @resolve(new LoginStatusObject("logged_out",null,null,null,null,facebook_authorized,srndp_authorized))
       ).promise()
     register : (username, name, rememberMe = false, email,location, shouldActivate=true) ->
       that = @
@@ -196,9 +212,15 @@ define [
       cred = $.jStorage.get("SRNDP_cred", null)
       if cred? then cred.at else null
     setAccessToken : (authToken, ttl, active = true) ->
-      $.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 100 * ttl})
+      $.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 1000 * ttl})
     removeAccessToken : () ->
       $.jStorage.deleteKey("SRNDP_cred")
     getTTL : () ->
       $.jStorage.getTTL("SRNDP_cred")
+    deferLogin : (deferred) ->
+      $.jStorage.set("SRNDP_deflogin",{"d" : deferred},{TTL : 1000 * 30})
+    getDeferredLogin : () ->
+      $.jStorage.get("SRNDP_deflogin")
+    clearDeferredLogin : () ->
+      $.jStorage.deleteKey("SRNDP_deflogin")
 
