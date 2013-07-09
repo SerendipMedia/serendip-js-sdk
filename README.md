@@ -22,7 +22,7 @@ The following snippet is a full example of how to load and init the SRNDP JS SDK
         js = d.createElement(s); js.id = id;
         js.src = "http://developers.serendip.me/lib/sdk.js";
         sjs.parentNode.insertBefore(js, sjs);
-    })(document, 'script', 'srndp-jssdk');</code></pre>
+    })(document, 'script', 'srndp-jssdk'));</code></pre>
 
 ## Demo App
 
@@ -44,7 +44,7 @@ A typical SDK call may take the following form:
 
 For example:
 
-> SRDNP.api(“/dj/info.json”, { “dj_id” : “fb_591735”}).done(function (djObj) { alert(“Hello “ + djObj.displayName); }.fail(function (err) { alert(“Opps. Error: “ + err.msg); }
+> SRDNP.api(“/dj/info.json”, { “id” : “fb_591377544”}).done(function (djObj) { alert(“Hello “ + djObj.userName); }.fail(function (err) { alert(“Opps. Error: “ + err.msg); }
 
 For the sake of clarity, within this document, API signatures will denote their response object as the return value of the call. However, in practice, clients should expect to receive these objects within the done() callback.
 
