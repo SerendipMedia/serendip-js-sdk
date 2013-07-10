@@ -11,7 +11,6 @@ define [
 #  on every page load we will check if we return from login
   # catch FB message
   window.onmessage = (msg) ->
-      console.log(msg.data)
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
           # call serendip ready
