@@ -35,7 +35,7 @@ define [
 
   # init code
   window.SRNDP = {}
-  parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
+  parent.postMessage("srndp-ready","*")
   session = $.cookie(Settings.SESSION_COOKIE_NAME)
   if session?
     session = session.indexOf('user')
