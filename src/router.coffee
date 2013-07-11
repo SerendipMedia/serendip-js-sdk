@@ -12,8 +12,6 @@ define [
       status     : true
     )
     FB.Event.subscribe('auth.statusChange', (response) ->
-      console.log(response)
-      console.log(window.__SRNDP__ORIGIN_)
       if (window.__SRNDP__ORIGIN_?)
         parent.postMessage(JSON.stringify(response),window.__SRNDP__ORIGIN_)
     )
