@@ -3,7 +3,7 @@
     paths : {
         requireLib : "../target/require",
         jquery : 'jquery-1.10.1.min',
-        facebook_sdk : '//connect.facebook.net/en_US/all'
+        facebook_sdk : 'https://connect.facebook.net/en_US/all'
     },
     include : "requireLib",
     name : "iframe",
