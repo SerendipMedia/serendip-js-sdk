@@ -6,15 +6,12 @@ define [
 ], (Settings,Auth) ->
   window.fbAsyncInit = () ->
     # init the FB JS SDK
-    console.log("fb init")
     FB.init(
       appId      : Settings.FB_APP_ID
       channelUrl : Settings.BASE_URL + '/public/website/channel.html'
       status     : true
     )
     FB.Event.subscribe('auth.statusChange', (response) ->
-      console.log("fb status change " + repsonse)
-      console.log(window.__SRNDP__ORIGIN_)
       if (window.__SRNDP__ORIGIN_?)
         parent.postMessage(JSON.stringify(response),window.__SRNDP__ORIGIN_)
     )
