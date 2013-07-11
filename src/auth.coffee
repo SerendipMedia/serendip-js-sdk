@@ -34,11 +34,7 @@ define [
         else
           SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
         Auth.getLoginStatus().done( (loginStatus) ->
-          console.log(loginStatus)
           $(document).trigger("srndp.statusChange",loginStatus)
-        ).fail(
-          () ->
-            console.log('failed')
         )
   Auth =
     LOGIN_ENDPOINT : "/login"

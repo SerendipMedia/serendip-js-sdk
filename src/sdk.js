@@ -10,7 +10,7 @@
 (function(){
     var iframe = document.createElement('iframe');
     iframe.style.display = "none";
-    iframe.src = 'http://serendip.me/sdk.html'
+    iframe.src = 'http://local.serendip.me/sdk.html'
     iframe.src += "#origin="
     if (document.location.origin == null)
         iframe.src += (document.location.protocol + "//" + document.location.hostname)

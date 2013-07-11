@@ -29,13 +29,12 @@ define [
               replyMsg = JSON.stringify(res)
               parent.postMessage("srndp-login-success:"+replyMsg,window.__SRNDP__ORIGIN_)
             ).fail( (err) ->
-              console.log err
               parent.postMessage("srndp-login-failed",window.__SRNDP__ORIGIN_)
             )
 
   # init code
   window.SRNDP = {}
-  parent.postMessage("srndp-ready","*")
+  parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
   session = $.cookie(Settings.SESSION_COOKIE_NAME)
   if session?
     session = session.indexOf('user')
