@@ -40,6 +40,7 @@ define [
   # init code
   Utils.log("srndp-ready")
   window.SRNDP = {}
+  Utils.log(window.__SRNDP__ORIGIN_)
   parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
   session = $.cookie(Settings.SESSION_COOKIE_NAME)
   if session?
