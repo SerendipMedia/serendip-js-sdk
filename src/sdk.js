@@ -29,7 +29,7 @@ requirejs.config({
     },
     config : {
         'cs!settings' : {
-            env : 'dev',
+            env : 'prod',
             logging : false,
             'dev' : {
                 SECURE_PROTOCOL : "http://",
