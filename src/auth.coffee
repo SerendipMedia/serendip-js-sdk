@@ -36,6 +36,8 @@ define [
         else
           SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
         Auth.getLoginStatus().done( (loginStatus) ->
+          Utils.log("Updating Logging Status")
+          Utils.log(loginStatus)
           $(document).trigger("srndp.statusChange",loginStatus)
         )
   Auth =
