@@ -6,4 +6,5 @@ define [
   if env?
     Settings = module.config()[env]
     Settings.BASE_OAUTH_URL = Settings.BASE_URL + "/auth"
+  Settings.logging = module.config()["logging"]
   Settings

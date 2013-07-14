@@ -1,6 +1,9 @@
 define [
-], () ->
+  'module'
+  'cs!settings'
+], (module,Settings) ->
   Utils =
+    logging : Settings.logging
     parseToObj : (s) ->
       obj = {}
       pairs = s.split("&")
@@ -15,3 +18,6 @@ define [
       if hashPosition != -1
         urlToPreserve = href.substring(0,hashPosition)
         window.history.pushState({"pageTitle":document.title},"", urlToPreserve)
+    log : (msg) ->
+      if @logging
+        console.log msg

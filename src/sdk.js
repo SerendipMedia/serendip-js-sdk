@@ -29,7 +29,8 @@ requirejs.config({
     },
     config : {
         'cs!settings' : {
-            env : 'prod',
+            env : 'dev',
+            logging : false,
             'dev' : {
                 SECURE_PROTOCOL : "http://",
                 BASE_API_URL : "localapi.serendip.me:9000/v1",

@@ -1,14 +1,16 @@
 define [
+  'cs!utils'
   'cs!auth'
   'cs!api'
   'cs!objects/response'
   'cs!objects/error'
   'cs!settings'
   'jquery'
-], (Auth,Api,ResponseObject,ErrorObject,Settings) ->
+], (Utils,Auth,Api,ResponseObject,ErrorObject,Settings) ->
 #  Define the SRNDP object
   window.SRNDP =
     init : (initObject) ->
+      Utils.log("init serendip")
       unless initObject.clientId then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
       #          init the iframe
       SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:"+initObject.clientId,Settings.BASE_URL)

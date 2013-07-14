@@ -11,6 +11,8 @@ define [
 #  on every page load we will check if we return from login
   # catch FB message
   window.onmessage = (msg) ->
+      Utils.log("got message:")
+      Utils.log(msg)
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
           # call serendip ready
@@ -129,7 +131,7 @@ define [
                   else
                     afterLogin(obj,true)
                 error : (xhr,err) =>
-                  @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
+                  @reject(new ErrorObject(err))
               )
             else
               if (newWindow)
