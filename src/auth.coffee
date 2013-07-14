@@ -12,7 +12,11 @@ define [
   # catch FB message
   window.onmessage = (msg) ->
       Utils.log("got message:")
-      Utils.log(msg)
+      Utils.log(msg.data)
+      Utils.log("Origin")
+      Utils.log(msg.origin)
+      Utils.log("Base URL")
+      Utils.log(Settings.BASE_URL)
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
           # call serendip ready
@@ -34,6 +38,7 @@ define [
           if window.SRNDP_WAITING_FOR_LOGIN_MSG?
             window.SRNDP_WAITING_FOR_LOGIN_MSG.reject()
         else
+          Utils.log("parsing fb response")
           SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
         Auth.getLoginStatus().done( (loginStatus) ->
           Utils.log("Updating Logging Status")
@@ -151,6 +156,8 @@ define [
       return $.Deferred(
         () ->
           d = that.getDeferredLogin()
+          Utils.log("Defferred")
+          Utils.log(d)
           unless d?
             srndp_authorized =  (SRNDP.LAST_SRNDP_RESPONSE? and SRNDP.LAST_SRNDP_RESPONSE.status is "logged_in")
             facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
