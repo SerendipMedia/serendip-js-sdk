@@ -32,7 +32,7 @@ define [
               replyMsg = JSON.stringify(res)
               _Utils.log("srndp-login-success:"+replyMsg)
               parent.postMessage("srndp-login-success:"+replyMsg,window.__SRNDP__ORIGIN_)
-            ).fail( (err) ->
+            ).fail( () ->
               _Utils.log("srndp-login-failed")
               parent.postMessage("srndp-login-failed",window.__SRNDP__ORIGIN_)
             )
@@ -48,5 +48,5 @@ define [
     session = -1
   replyMsg = if session is -1 then "logged_out" else "logged_in"
   parent.postMessage("srndp-chk-session:"+replyMsg,window.__SRNDP__ORIGIN_)
-  Utils.log("srndp-chk-session:"+replyMsg)
+  _Utils.log("srndp-chk-session:"+replyMsg)
 
