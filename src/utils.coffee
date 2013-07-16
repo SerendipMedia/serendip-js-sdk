@@ -2,7 +2,7 @@ define [
   'module'
   'cs!settings'
 ], (module,Settings) ->
-  Utils =
+  _Utils =
     logging : Settings.logging
     parseToObj : (s) ->
       obj = {}

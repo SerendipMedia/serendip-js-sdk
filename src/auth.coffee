@@ -7,12 +7,12 @@ define [
   'cs!utils'
   'jquery'
   'jstorage'
-], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api,Utils) ->
+], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api,_Utils) ->
 #  on every page load we will check if we return from login
   # catch FB message
   window.onmessage = (msg) ->
-      Utils.log("got message:")
-      Utils.log(msg)
+      _Utils.log("got message:")
+      _Utils.log(msg)
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
           # call serendip ready
@@ -55,8 +55,8 @@ define [
       d = @getDeferredLogin()
       if d? and hash? and window.onReturnFromLogin?
         @clearDeferredLogin()
-        Utils.eliminateHashPart()
-        obj = Utils.parseToObj(hash.substring(1))
+        _Utils.eliminateHashPart()
+        obj = _Utils.parseToObj(hash.substring(1))
         if obj? and obj["success"] or obj["success"] is "true"
           onReturnFromLogin(@getLoggedInResult(obj))
         else
