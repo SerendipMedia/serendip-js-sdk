@@ -4,7 +4,7 @@ define [
   'cs!objects/login_status'
   'cs!settings'
   'cs!api'
-  'cs!utils'
+  'cs!srndp_utils'
   'jquery'
   'jstorage'
 ], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api,_Utils) ->

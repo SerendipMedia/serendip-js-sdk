@@ -1,5 +1,5 @@
 define [
-  'cs!utils'
+  'cs!srndp_utils'
   'cs!auth'
   'cs!api'
   'cs!objects/response'
