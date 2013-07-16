@@ -1,5 +1,5 @@
 define [
-  'cs!utils'
+  'cs!srndp_utils'
   'cs!settings'
   'cs!auth'
   'facebook_sdk'
