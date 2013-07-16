@@ -7,16 +7,12 @@ define [
   'cs!utils'
   'jquery'
   'jstorage'
-], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api,Utils) ->
+], (ResponseObject,ErrorObject,LoginStatusObject,Settings,Api,_Utils) ->
 #  on every page load we will check if we return from login
   # catch FB message
   window.onmessage = (msg) ->
-      Utils.log("got message:")
-      Utils.log(msg.data)
-      Utils.log("Origin")
-      Utils.log(msg.origin)
-      Utils.log("Base URL")
-      Utils.log(Settings.BASE_URL)
+      _Utils.log("got message:")
+      _Utils.log(msg)
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
           # call serendip ready
@@ -38,11 +34,8 @@ define [
           if window.SRNDP_WAITING_FOR_LOGIN_MSG?
             window.SRNDP_WAITING_FOR_LOGIN_MSG.reject()
         else
-          Utils.log("parsing fb response")
           SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
         Auth.getLoginStatus().done( (loginStatus) ->
-          Utils.log("Updating Logging Status")
-          Utils.log(loginStatus)
           $(document).trigger("srndp.statusChange",loginStatus)
         )
   Auth =
@@ -62,8 +55,8 @@ define [
       d = @getDeferredLogin()
       if d? and hash? and window.onReturnFromLogin?
         @clearDeferredLogin()
-        Utils.eliminateHashPart()
-        obj = Utils.parseToObj(hash.substring(1))
+        _Utils.eliminateHashPart()
+        obj = _Utils.parseToObj(hash.substring(1))
         if obj? and obj["success"] or obj["success"] is "true"
           onReturnFromLogin(@getLoggedInResult(obj))
         else
@@ -156,8 +149,6 @@ define [
       return $.Deferred(
         () ->
           d = that.getDeferredLogin()
-          Utils.log("Defferred")
-          Utils.log(d)
           unless d?
             srndp_authorized =  (SRNDP.LAST_SRNDP_RESPONSE? and SRNDP.LAST_SRNDP_RESPONSE.status is "logged_in")
             facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")

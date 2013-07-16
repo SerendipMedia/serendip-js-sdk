@@ -243,7 +243,7 @@ name : String - suggested display name based on Facebook/Twitter account.
 
 ## Events
 
-##### auth.statusChange
+##### srndp.statusChange
 
 Fired whenever the login status of the user changes. Passes in a LoginObject object
 
