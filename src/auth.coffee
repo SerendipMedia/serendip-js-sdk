@@ -215,7 +215,7 @@ define [
       _Utils.log "getting access token:"
       _Utils.log(cred)
       if cred? then cred.at else null
-    setAccessToken : (authToken, ttl, active = true) ->
+    setAccessToken : (authToken, ttl = 24*60*60, active = true) ->
       $.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 1000 * ttl})
     removeAccessToken : () ->
       $.jStorage.deleteKey("SRNDP_cred")

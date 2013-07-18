@@ -689,10 +689,14 @@
          */
         get: function(key, def){
             _checkKey(key);
+            console.log(key + "passed check")
             if(key in _storage){
+                console.log(key + "in storage")
                 if(_storage[key] && typeof _storage[key] == "object" && _storage[key]._is_xml) {
                     return _XMLService.decode(_storage[key].xml);
                 }else{
+                    console.log(key + "is json")
+                    console.log("about to return " + _storage[key])
                     return _storage[key];
                 }
             }
