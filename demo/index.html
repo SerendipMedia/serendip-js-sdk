@@ -70,7 +70,16 @@
                     else if (resp.facebook_authorized) {
                         clearUI();
                         updateMessage("Logging In ...");
-                        SRNDP.login("facebook",true).done(loginFunc).fail(errFunc);
+                        SRNDP.login("facebook",true).done(
+                                function () {
+                                    SRNDP.getLoginStatus().done (
+                                            function (resp) {
+                                                console.log("recieved status");
+                                                console.log(resp.status);
+                                            }
+                                    )
+                                }
+                        ).fail(errFunc);
                     }
                     else {
                         showLoggedOut();
