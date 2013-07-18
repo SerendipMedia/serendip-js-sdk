@@ -212,7 +212,7 @@ define [
       if cred? then cred.act else false
     getAccessToken : () ->
       cred = $.jStorage.get("SRNDP_cred", null)
-      _Util.log "getting access token:"
+      _Utils.log "getting access token:"
       _Utils.log(cred)
       if cred? then cred.at else null
     setAccessToken : (authToken, ttl, active = true) ->
