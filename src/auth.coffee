@@ -145,6 +145,9 @@ define [
                 document.location = url
       ).promise()
     getLoginStatus : () ->
+      # reinit storage
+      $.jStorage.reInit()
+
       that = @
       return $.Deferred(
         () ->
