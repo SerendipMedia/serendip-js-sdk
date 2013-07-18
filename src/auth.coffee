@@ -149,14 +149,14 @@ define [
       return $.Deferred(
         () ->
           d = that.getDeferredLogin()
-          Utils.log "Deffered Object"
-          Utils.log(d)
+          _Utils.log "Deffered Object"
+          _Utils.log(d)
           unless d?
             srndp_authorized =  (SRNDP.LAST_SRNDP_RESPONSE? and SRNDP.LAST_SRNDP_RESPONSE.status is "logged_in")
             facebook_authorized =  (SRNDP.LAST_FB_RESPONSE? and SRNDP.LAST_FB_RESPONSE.status is "connected")
-            Utils.log "Access Token"
+            _Utils.log "Access Token"
             at = that.getAccessToken()
-            Utils.log(at)
+            _Utils.log(at)
             if at?
               if that.isRegistered()
                 @resolve(new LoginStatusObject("logged_in",null,null,null,null,facebook_authorized,srndp_authorized))
