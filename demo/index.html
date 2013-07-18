@@ -123,6 +123,12 @@
             // once API returns, we display the avatar and name of the user/DJ
             showProfile = function() {
                 clearAllMessages();
+                SRNDP.getLoginStatus().done (
+                        function (resp) {
+                            console.log("recieved status");
+                            console.log(resp.status);
+                        }
+                )
                 SRNDP.api("/dj/info.json",{},true).done(
                   function (me) {
                       $("#profile").html("<div>Hello "+me.userName+"</div>");
