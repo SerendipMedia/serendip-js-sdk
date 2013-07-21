@@ -143,9 +143,10 @@ define [
                 createData =
                   url : url
                   type : "popup"
-                chrome.tabs.getCurrent( (tab) ->
-                  console.log("Current tab is is " + tab.id)
-                  chrome.tabs.update(tab.id,{url:"http://www.google.com"})
+                $.extend(createData,options)
+                console.log(chrome.windows.create)
+                chrome.extension.getBackgroundPage().chrome.windows.create(createData, (window) ->
+                  console.log("Window id is : ") + window.id
                 )
               else
                 that.deferLogin()
