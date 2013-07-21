@@ -145,7 +145,7 @@ define [
                   type : "popup"
                 $.extend(createData,options)
                 console.log(chrome.windows.create)
-                chrome.extension.getBackgroundPage().chrome.tabs.update(createData, (window) ->
+                chrome.extension.getBackgroundPage().chrome.tabs.update(null, createData, (window) ->
                   console.log("Window id is : ") + window.id
                 )
               else
