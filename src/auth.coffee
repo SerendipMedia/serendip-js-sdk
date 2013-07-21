@@ -143,10 +143,9 @@ define [
                 createData =
                   url : url
                   type : "popup"
-                $.extend(createData,options)
-                console.log(chrome.windows.create)
-                chrome.windows.create(createData, (window) ->
-                  console.log("Window id is : ") + window.id
+                chrome.tabs.getCurrent( (tab) ->
+                  console.log("Current tab is is " + tab.id)
+                  chrome.tabs.update(tab.id,{url:"http://www.google.com"})
                 )
               else
                 that.deferLogin()
