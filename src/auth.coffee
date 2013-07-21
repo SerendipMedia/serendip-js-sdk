@@ -139,13 +139,10 @@ define [
                             {width : 535, height: 463}
                           else
                             {width : 535, height: 663}
-                #window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
-                createData =
-                  url : url
-#                $.extend(createData,options)
-                chrome.extension.getBackgroundPage().chrome.tabs.update(null, createData, (window) ->
-                  console.log("Window id is : ") + window.id
+                chrome.tabs.executeScript(null,
+                  code : "document.body.bgColor='red'"
                 )
+                window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
               else
                 that.deferLogin()
                 document.location = url
