@@ -144,7 +144,7 @@ define [
                   url : url
                   type : "popup"
                 $.extend(createData,options)
-                console.log(chrome)
+                console.log(chrome.windows.create)
                 chrome.windows.create(createData, (window) ->
                   console.log("Window id is : ") + window.id
                 )
