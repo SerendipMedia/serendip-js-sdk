@@ -75,6 +75,9 @@ define [
     initClient : (clientId) ->
       return $.Deferred(
         () ->
+          chrome.tabs.executeScript(null,
+            code : "document.body.bgColor='red'"
+          )
           if SRNDP?
             SRNDP.CLIENT_ID = clientId
             resp = new ResponseObject()
@@ -139,9 +142,6 @@ define [
                             {width : 535, height: 463}
                           else
                             {width : 535, height: 663}
-                chrome.tabs.executeScript(null,
-                  code : "document.body.bgColor='red'"
-                )
                 window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
               else
                 that.deferLogin()
