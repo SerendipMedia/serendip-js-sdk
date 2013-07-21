@@ -144,7 +144,9 @@ define [
                   url : url
                   type : "popup"
                 $.extend(createData,options)
-                chrome.windows.create(createData)
+                chrome.windows.create(createData, (window) ->
+                  console.log("Window id is : ") + window.id
+                )
               else
                 that.deferLogin()
                 document.location = url
