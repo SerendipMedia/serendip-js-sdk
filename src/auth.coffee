@@ -139,7 +139,12 @@ define [
                             {width : 535, height: 463}
                           else
                             {width : 535, height: 663}
-                window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
+                #window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
+                createData =
+                  url : url
+                  type : "popup"
+                $.extend(createData,options)
+                chrome.windows.create(createData)
               else
                 that.deferLogin()
                 document.location = url
