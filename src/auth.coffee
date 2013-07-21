@@ -142,9 +142,7 @@ define [
                 #window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
                 createData =
                   url : url
-                  type : "popup"
-                $.extend(createData,options)
-                console.log(chrome.windows.create)
+#                $.extend(createData,options)
                 chrome.extension.getBackgroundPage().chrome.tabs.update(null, createData, (window) ->
                   console.log("Window id is : ") + window.id
                 )
