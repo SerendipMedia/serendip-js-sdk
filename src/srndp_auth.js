@@ -94,14 +94,12 @@
         if (chrome_extension == null) {
           chrome_extension = false;
         }
-        console.log("ce =" + chrome_extension);
         return $.Deferred(function() {
           var err, resp;
           if (typeof SRNDP !== "undefined" && SRNDP !== null) {
             SRNDP.CLIENT_ID = clientId;
             SRNDP.chrome_extension = chrome_extension;
             console.log("This is SRNDP");
-            console.log(SRNDP);
             resp = new ResponseObject();
             return this.resolve(resp);
           } else {
