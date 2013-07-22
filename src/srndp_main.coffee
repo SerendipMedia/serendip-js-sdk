@@ -1,7 +1,7 @@
 define [
   'cs!srndp_utils'
-  'cs!auth'
-  'cs!api'
+  'cs!srndp_auth'
+  'cs!srndp_api'
   'cs!objects/srndp_response'
   'cs!objects/srndp_error'
   'cs!srndp_settings'
