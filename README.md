@@ -215,6 +215,22 @@ In case your extension use a different directory structure, make sure to place i
 
 The file can be downloaded from <a href="http://developers.serendip.me/resources/scripts/readAuth.js">http://developers.serendip.me/resources/scripts/readAuth.js</a>
 
+#### Initialization
+
+When calling SRNDP.init , should pass an additional field to the init object **chrome_extension** with the value **true**
+
+```
+SRNDP.init({
+	CLIENT_ID : <client_id>,
+	chrome_extension : true
+)
+```
+
+#### Restrictions
+
+In-place authentication is not supported in SRNDP.login.
+Call to SRNDP.login will always cause a popup to open.
+
 
 ## UI
 
