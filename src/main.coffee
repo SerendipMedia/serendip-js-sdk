@@ -14,7 +14,7 @@ define [
       unless initObject.clientId then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
       #          init the iframe
       SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-init:"+initObject.clientId,Settings.BASE_URL)
-      Auth.initClient(initObject.clientId)
+      Auth.initClient(initObject.clientId, initObject.chrome_extension)
     api : (endpoint, params, auth = false, method = 'GET') ->
       at = null
       if (auth) then at = Auth.getAccessToken()

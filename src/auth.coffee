@@ -72,11 +72,12 @@ define [
       new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"],facebook,serendip)
     getLoginError : (obj) ->
       new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")})
-    initClient : (clientId) ->
+    initClient : (clientId, chrome_extension = false) ->
       return $.Deferred(
         () ->
           if SRNDP?
             SRNDP.CLIENT_ID = clientId
+            SRNDP.chrome_extension = chrome_extension
             resp = new ResponseObject()
             @resolve(resp)
           else
@@ -91,6 +92,7 @@ define [
       return $.Deferred(
         () ->
           afterLogin = (obj, clientFlow = false) =>
+            chrome.runtime.onMessage.removeListener(handler)
             if obj["success"] or obj["success"] is "true"
               @resolve(that.getLoggedInResult(obj,clientFlow))
             else
@@ -99,6 +101,13 @@ define [
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) != -1)
               obj = e.data
               if (typeof obj is "object") then afterLogin(obj)
+          if (SRNDP.chrome_extension)
+            #        extensions handling
+            if (chrome?.runtime?)
+              handler = (msg,sender) ->
+                if (sender.id is ﻿chrome.i18n.getMessage("@@extension_id"))
+                  afterLogin(msg)
+              chrome.runtime.onMessage.addListener(handler)
           unless SRNDP.CLIENT_ID then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
           else
             params =
@@ -134,7 +143,7 @@ define [
                   @reject(new ErrorObject(err))
               )
             else
-              if (newWindow)
+              if (newWindow or SRNDP.chrome_extension)
                 options = if (network == "facebook")
                             {width : 535, height: 463}
                           else
