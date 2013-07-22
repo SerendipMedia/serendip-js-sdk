@@ -13,7 +13,7 @@ require.config({
     config : {
         'cs!srndp_settings' : {
             env : 'prod',
-            logging : true,
+            logging : false,
             'dev' : {
                 SECURE_PROTOCOL : "http://",
                 BASE_API_URL : "localapi.serendip.me:9000/v1",

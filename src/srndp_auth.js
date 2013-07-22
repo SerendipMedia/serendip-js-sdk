@@ -99,7 +99,6 @@
           if (typeof SRNDP !== "undefined" && SRNDP !== null) {
             SRNDP.CLIENT_ID = clientId;
             SRNDP.chrome_extension = chrome_extension;
-            console.log("This is SRNDP");
             resp = new ResponseObject();
             return this.resolve(resp);
           } else {
@@ -134,7 +133,9 @@
             if (clientFlow == null) {
               clientFlow = false;
             }
-            chrome.runtime.onMessage.removeListener(handler);
+            if (((typeof chrome !== "undefined" && chrome !== null ? chrome.runtime : void 0) != null)) {
+              chrome.runtime.onMessage.removeListener(handler);
+            }
             if (obj["success"] || obj["success"] === "true") {
               return _this.resolve(that.getLoggedInResult(obj, clientFlow));
             } else {

@@ -92,7 +92,7 @@ define [
       return $.Deferred(
         () ->
           afterLogin = (obj, clientFlow = false) =>
-            chrome.runtime.onMessage.removeListener(handler)
+            if (chrome?.runtime?) then chrome.runtime.onMessage.removeListener(handler)
             if obj["success"] or obj["success"] is "true"
               @resolve(that.getLoggedInResult(obj,clientFlow))
             else
