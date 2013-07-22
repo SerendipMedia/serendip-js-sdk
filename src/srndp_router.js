@@ -18,6 +18,7 @@
     window.onmessage = function(msg) {
       var clientId;
       if (msg.origin === window.__SRNDP__ORIGIN_) {
+        console.log(msg);
         if (msg.data.indexOf("srndp-init") !== -1) {
           _Utils.log("srndp-init");
           clientId = msg.data.substring(11);
