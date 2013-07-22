@@ -28,7 +28,7 @@ requirejs.config({
         'jstorage' : ['jquery']
     },
     config : {
-        'cs!settings' : {
+        'cs!srndp_settings' : {
             env : 'prod',
             logging : false,
             'dev' : {

@@ -15,6 +15,31 @@
         }
       });
     };
+    window.onmessage = function(msg) {
+      var clientId;
+      if (msg.origin === window.__SRNDP__ORIGIN_) {
+        if (msg.data.indexOf("srndp-init") !== -1) {
+          _Utils.log("srndp-init");
+          clientId = msg.data.substring(11);
+          return this.CLIENT_ID = clientId;
+        } else {
+          switch (msg.data) {
+            case "srndp-logout-fb":
+              return FB.logout();
+            case "srndp-login-srndp":
+              return Auth.loginFromIframe("serendip", this.CLIENT_ID, true).done(function(res) {
+                var replyMsg;
+                replyMsg = JSON.stringify(res);
+                _Utils.log("srndp-login-success:" + replyMsg);
+                return parent.postMessage("srndp-login-success:" + replyMsg, window.__SRNDP__ORIGIN_);
+              }).fail(function() {
+                _Utils.log("srndp-login-failed");
+                return parent.postMessage("srndp-login-failed", window.__SRNDP__ORIGIN_);
+              });
+          }
+        }
+      }
+    };
     window.SRNDP = {};
     parent.postMessage("srndp-ready", window.__SRNDP__ORIGIN_);
     _Utils.log("srndp-ready");

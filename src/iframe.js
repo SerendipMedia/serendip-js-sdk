@@ -11,7 +11,7 @@ require.config({
         }
     },
     config : {
-        'cs!settings' : {
+        'cs!srndp_settings' : {
             env : 'prod',
             logging : false,
             'dev' : {
