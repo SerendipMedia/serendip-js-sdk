@@ -2,9 +2,9 @@ define [
   'cs!srndp_utils'
   'cs!auth'
   'cs!api'
-  'cs!objects/response'
-  'cs!objects/error'
-  'cs!settings'
+  'cs!objects/srndp_response'
+  'cs!objects/srndp_error'
+  'cs!srndp_settings'
   'jquery'
 ], (_Utils,Auth,Api,ResponseObject,ErrorObject,Settings) ->
 #  Define the SRNDP object

@@ -1,6 +1,6 @@
 define [
   'module'
-  'cs!settings'
+  'cs!srndp_settings'
 ], (module,Settings) ->
   _Utils =
     logging : Settings.logging

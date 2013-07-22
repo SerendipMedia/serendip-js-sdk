@@ -1,6 +1,6 @@
 define [
-  'cs!settings',
-  'cs!objects/error'
+  'cs!srndp_settings',
+  'cs!objects/srndp_error'
   'jquery'
 ], (Settings,ErrorObject) ->
   Api =

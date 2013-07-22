@@ -1,7 +1,7 @@
 define [
   'cs!srndp_utils'
-  'cs!settings'
-  'cs!auth'
+  'cs!srndp_settings'
+  'cs!srndp_auth'
   'facebook_sdk'
   'jquery.cookie'
 ], (_Utils,Settings,Auth) ->
