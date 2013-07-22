@@ -17,25 +17,25 @@ define [
         _Utils.log(response)
         parent.postMessage(JSON.stringify(response),window.__SRNDP__ORIGIN_)
     )
-  window.onmessage = (msg) ->
-    if (msg.origin is window.__SRNDP__ORIGIN_)
-      if msg.data.indexOf("srndp-init") != -1
-        _Utils.log("srndp-init")
-        clientId = msg.data.substring(11)
-        @CLIENT_ID = clientId
-      else
-        switch msg.data
-          when "srndp-logout-fb"
-            FB.logout()
-          when "srndp-login-srndp"
-            Auth.loginFromIframe("serendip",@CLIENT_ID,true).done( (res) ->
-              replyMsg = JSON.stringify(res)
-              _Utils.log("srndp-login-success:"+replyMsg)
-              parent.postMessage("srndp-login-success:"+replyMsg,window.__SRNDP__ORIGIN_)
-            ).fail( () ->
-              _Utils.log("srndp-login-failed")
-              parent.postMessage("srndp-login-failed",window.__SRNDP__ORIGIN_)
-            )
+#  window.onmessage = (msg) ->
+#    if (msg.origin is window.__SRNDP__ORIGIN_)
+#      if msg.data.indexOf("srndp-init") != -1
+#        _Utils.log("srndp-init")
+#        clientId = msg.data.substring(11)
+#        @CLIENT_ID = clientId
+#      else
+#        switch msg.data
+#          when "srndp-logout-fb"
+#            FB.logout()
+#          when "srndp-login-srndp"
+#            Auth.loginFromIframe("serendip",@CLIENT_ID,true).done( (res) ->
+#              replyMsg = JSON.stringify(res)
+#              _Utils.log("srndp-login-success:"+replyMsg)
+#              parent.postMessage("srndp-login-success:"+replyMsg,window.__SRNDP__ORIGIN_)
+#            ).fail( () ->
+#              _Utils.log("srndp-login-failed")
+#              parent.postMessage("srndp-login-failed",window.__SRNDP__ORIGIN_)
+#            )
 
   # init code
   window.SRNDP = {}

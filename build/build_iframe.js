@@ -7,8 +7,8 @@
     },
     include : "requireLib",
     name : "iframe",
-//    generateSourceMaps : true,
+    generateSourceMaps : true,
     preserveLicenseComments : false,
-//    optimize : 'uglify2',
+    optimize : 'uglify2',
     out : "../lib/iframe.js"
 })
