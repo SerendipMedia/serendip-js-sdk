@@ -176,6 +176,46 @@ See <a href="#events-1">Events</a> section for list of supported events
 
 Removes the event handler from this specific event.
 
+## Chrome Extenstions Support
+
+Chrome Extenstions entail restrictions in terms of access to external resoruces. 
+
+The following guidelines should be implemented by developers of chrome extensions who wish to access the SRNDP JavaScript SDK.
+
+#### Loading of JS SDK over https
+
+Replace the call to the JS SDK in your script file, with the following URL
+
+```
+js.src = "https://developers-srndp.s3.amazonaws.com/lib/sdk"
+```
+
+#### Changes to Manifest.json
+
+The following fields should be added to (or merged with your own data) the Manifest.json file of the extension -
+
+```
+{
+	"permissions" : "*://serendip.me/",
+	"content_scripts": [
+        {
+            "matches": ["*://serendip.me/*"],
+            "js": ["scripts/readAuth.js"]
+        }
+    ],
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https://developers-srndp.s3.amazonaws.com https://developers-srndp-dev.s3.amazonaws.com https://connect.facebook.net; object-src 'self'"
+}
+```
+
+#### Content Script
+
+The script **readAuth.js** should be added as a content script to the extension.
+In the example above, we assume it resides within the scripts directory beneath our base directory.
+In case your extension use a different directory structure, make sure to place it in the right one.
+
+The file can be downloaded from <a href="http://developers.serendip.me/resources/scripts/readAuth.js">http://developers.serendip.me/resources/scripts/readAuth.js</a>
+
+
 ## UI
 
 **Not yet implemented**
@@ -269,6 +309,10 @@ Events
 #### 0.2 July 09, 2013
 
 In-place Authentication login
+
+#### 0.3 July 22, 2013
+
+Chrome Extensions Support
 
 ### License
 

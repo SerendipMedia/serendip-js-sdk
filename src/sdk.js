@@ -1,5 +1,5 @@
 /**
- * @license Serendip JavaScript SDK v0.2
+ * @license Serendip JavaScript SDK v0.3
  * https://github.com/SerendipMedia/serendip-js-sdk
  *
  * Copyright 2013 Serendip Media inc.
