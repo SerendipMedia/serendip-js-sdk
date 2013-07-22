@@ -24,7 +24,7 @@ require.config({
             'prod' : {
                 SECURE_PROTOCOL : "https://",
                 BASE_API_URL : "api.serendip.me/v1",
-                BASE_URL : "http://serendip.me",
+                BASE_URL : "https://serendip.me",
                 FB_APP_ID : '180530865322766',
                 SESSION_COOKIE_NAME : 'PLAY_SESSION'
             }

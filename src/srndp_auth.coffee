@@ -73,11 +73,14 @@ define [
     getLoginError : (obj) ->
       new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")})
     initClient : (clientId, chrome_extension = false) ->
+      console.log("ce =" + chrome_extension)
       return $.Deferred(
         () ->
           if SRNDP?
             SRNDP.CLIENT_ID = clientId
             SRNDP.chrome_extension = chrome_extension
+            console.log("This is SRNDP")
+            console.log(SRNDP)
             resp = new ResponseObject()
             @resolve(resp)
           else
