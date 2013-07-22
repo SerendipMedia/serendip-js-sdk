@@ -38,16 +38,6 @@ define [
         Auth.getLoginStatus().done( (loginStatus) ->
           $(document).trigger("srndp.statusChange",loginStatus)
         )
-#        extensions handling
-  if (chrome?.runtime?)
-    chrome.runtime.onMessage.addListener( (msg,sender) ->
-      if (sender.id is ﻿chrome.i18n.getMessage("@@extension_id"))
-        SRNDP.LAST_FB_RESPONSE = msg
-        Auth.getLoginStatus().done( (loginStatus) ->
-          $(document).trigger("srndp.statusChange",loginStatus)
-        )
-    )
-
   Auth =
     LOGIN_ENDPOINT : "/login"
     CONNECT_PARAMS :
@@ -109,6 +99,12 @@ define [
             if (Settings.BASE_OAUTH_URL.indexOf(e.origin) != -1)
               obj = e.data
               if (typeof obj is "object") then afterLogin(obj)
+        #        extensions handling
+          if (chrome?.runtime?)
+            chrome.runtime.onMessage.addListener( (msg,sender) ->
+              if (sender.id is ﻿chrome.i18n.getMessage("@@extension_id"))
+                afterLogin(msg)
+            )
           unless SRNDP.CLIENT_ID then @reject(new ErrorObject("ERR_NOT_INITIALIZED"))
           else
             params =
