@@ -32,4 +32,4 @@ require.config({
     }
 })
 
-require(['cs!router']);
+require(['cs!srndp_router']);

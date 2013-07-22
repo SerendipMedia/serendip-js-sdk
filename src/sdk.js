@@ -49,4 +49,4 @@ requirejs.config({
     }
 });
 
-requirejs(['cs!main']);
+requirejs(['cs!srndp_main']);
