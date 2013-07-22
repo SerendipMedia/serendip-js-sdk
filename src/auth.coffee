@@ -41,13 +41,11 @@ define [
 #        extensions handling
   if (chrome?.runtime?)
     chrome.runtime.onMessage.addListener( (msg,sender) ->
-      console.log("Sender is: ")
-      console.log(sender)
-      console.log(msg)
-      SRNDP.LAST_FB_RESPONSE = JSON.parse(msg)
-      Auth.getLoginStatus().done( (loginStatus) ->
-        $(document).trigger("srndp.statusChange",loginStatus)
-      )
+      if (sender.id is ﻿chrome.i18n.getMessage("@@extension_id"))
+        SRNDP.LAST_FB_RESPONSE = msg
+        Auth.getLoginStatus().done( (loginStatus) ->
+          $(document).trigger("srndp.statusChange",loginStatus)
+        )
     )
 
   Auth =
