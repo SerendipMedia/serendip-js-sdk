@@ -4,7 +4,7 @@ define [
   'cs!srndp_auth'
   'facebook_sdk'
   'jquery.cookie'
-], (_Utils,Settings,Auth) ->
+], (_Utils,Settings,Auth,_1,_2) ->
   window.fbAsyncInit = () ->
     # init the FB JS SDK
     FB.init(
@@ -19,7 +19,6 @@ define [
     )
   window.onmessage = (msg) ->
     if (msg.origin is window.__SRNDP__ORIGIN_)
-      console.log(msg)
       if msg.data.indexOf("srndp-init") != -1
         _Utils.log("srndp-init")
         clientId = msg.data.substring(11)
