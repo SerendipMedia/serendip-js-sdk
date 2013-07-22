@@ -45,10 +45,11 @@ define [
       console.log(sender)
       console.log(msg)
       SRNDP.LAST_FB_RESPONSE = JSON.parse(msg)
+      Auth.getLoginStatus().done( (loginStatus) ->
+        $(document).trigger("srndp.statusChange",loginStatus)
+      )
     )
-    Auth.getLoginStatus().done( (loginStatus) ->
-      $(document).trigger("srndp.statusChange",loginStatus)
-    )
+
   Auth =
     LOGIN_ENDPOINT : "/login"
     CONNECT_PARAMS :
