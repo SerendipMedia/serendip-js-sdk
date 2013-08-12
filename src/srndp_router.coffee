@@ -5,6 +5,9 @@ define [
   'facebook_sdk'
   'jquery.cookie'
 ], (_Utils,Settings,Auth,_1,_2) ->
+  #  Avoid jQuery namespace collision problem
+  window.$srndp = jQuery.noConflict()
+  
   window.fbAsyncInit = () ->
     # init the FB JS SDK
     FB.init(
