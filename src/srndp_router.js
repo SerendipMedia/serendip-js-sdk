@@ -2,7 +2,6 @@
 (function() {
   define(['cs!srndp_utils', 'cs!srndp_settings', 'cs!srndp_auth', 'facebook_sdk', 'jquery.cookie'], function(_Utils, Settings, Auth, _1, _2) {
     var replyMsg, session;
-    window.$srndp = jQuery.noConflict();
     window.fbAsyncInit = function() {
       FB.init({
         appId: Settings.FB_APP_ID,
@@ -42,6 +41,7 @@
       }
     };
     window.SRNDP = {};
+    window.$srndp = jQuery.noConflict();
     parent.postMessage("srndp-ready", window.__SRNDP__ORIGIN_);
     _Utils.log("srndp-ready");
     session = $srndp.cookie(Settings.SESSION_COOKIE_NAME);

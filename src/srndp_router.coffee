@@ -5,9 +5,6 @@ define [
   'facebook_sdk'
   'jquery.cookie'
 ], (_Utils,Settings,Auth,_1,_2) ->
-  #  Avoid jQuery namespace collision problem
-  window.$srndp = jQuery.noConflict()
-  
   window.fbAsyncInit = () ->
     # init the FB JS SDK
     FB.init(
@@ -42,6 +39,9 @@ define [
 
   # init code
   window.SRNDP = {}
+  #  Avoid jQuery namespace collision problem
+  window.$srndp = jQuery.noConflict()
+  
   parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
   _Utils.log("srndp-ready")
   session = $srndp.cookie(Settings.SESSION_COOKIE_NAME)
