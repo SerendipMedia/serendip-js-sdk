@@ -36,7 +36,7 @@ define [
         else
           SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data)
         Auth.getLoginStatus().done( (loginStatus) ->
-          $(document).trigger("srndp.statusChange",loginStatus)
+          $srndp(document).trigger("srndp.statusChange",loginStatus)
         )
   Auth =
     LOGIN_ENDPOINT : "/login"
@@ -73,7 +73,7 @@ define [
     getLoginError : (obj) ->
       new ErrorObject("ERR_GENERIC",{"error_message" : obj.error_description.replace(/\+/g," ")})
     initClient : (clientId, chrome_extension = false) ->
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           if SRNDP?
             SRNDP.CLIENT_ID = clientId
@@ -89,7 +89,7 @@ define [
       @login(network,implicit, false,null,true,true)
     login : (network, implicit = false, rememberMe = false, state, newWindow = true, fromIframe = false) ->
       that = @
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           afterLogin = (obj, clientFlow = false) =>
             if (chrome?.runtime?) then chrome.runtime.onMessage.removeListener(handler)
@@ -126,12 +126,12 @@ define [
                 network_token : authResponse.accessToken
                 network_secret : authResponse.signedRequest
                 network_expiration : authResponse.expiresIn
-              $.extend(params,fbTokens)
+              $srndp.extend(params,fbTokens)
             url = Settings.BASE_OAUTH_URL + that.LOGIN_ENDPOINT
             params.origin = window.location.href
-            url = url + "?" + $.param(params)
+            url = url + "?" + $srndp.param(params)
             if (implicit)
-              $.ajax(
+              $srndp.ajax(
                 url : url
                 type : 'GET'
                 success : (obj) =>
@@ -148,17 +148,17 @@ define [
                             {width : 535, height: 463}
                           else
                             {width : 535, height: 663}
-                window.open(url,"srndp_login",$.param($.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
+                window.open(url,"srndp_login",$srndp.param($srndp.extend(@CONNECT_PARAMS,options)).replace(/&/g,","))
               else
                 that.deferLogin()
                 document.location = url
       ).promise()
     getLoginStatus : () ->
       # reinit storage
-      $.jStorage.reInit()
+      $srndp.jStorage.reInit()
 
       that = @
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           d = that.getDeferredLogin()
           unless d?
@@ -175,7 +175,7 @@ define [
       ).promise()
     register : (username, name, rememberMe = false, email,location, shouldActivate=true) ->
       that = @
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           params =
             username : username
@@ -188,7 +188,7 @@ define [
             if (res.success)
               @resolve(new ResponseObject())
               that.setAccessToken(that.getAccessToken(),that.getTTL(),true)
-              $(document).trigger("srndp.statusChange",new LoginStatusObject("logged_in"))
+              $srndp(document).trigger("srndp.statusChange",new LoginStatusObject("logged_in"))
             else
               @reject(new ErrorObject())
           ).fail( (err) =>
@@ -197,13 +197,13 @@ define [
       ).promise()
     activate : () ->
       that = @
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           Api.call('/auth/activate.json',null,true,that.getAccessToken()).done( (res) =>
             if (res.success)
               that.setAccessToken(that.getAccessToken(),that.getTTL(),true)
               @resolve(new ResponseObject())
-              $(document).trigger("srndp.statusChange",new LoginStatusObject("logged_in"))
+              $srndp(document).trigger("srndp.statusChange",new LoginStatusObject("logged_in"))
             else
               @reject(new ErrorObject())
           ).fail( (err) =>
@@ -212,29 +212,29 @@ define [
       ).promise()
     logout : () ->
       that = @
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           that.removeAccessToken()
-          $(document).trigger("srndp.statusChange",new LoginStatusObject("logged_out"))
+          $srndp(document).trigger("srndp.statusChange",new LoginStatusObject("logged_out"))
           @resolve(new ResponseObject())
           Api.call('/auth/logout.json',null,true,that.getAccessToken()).promise()
       ).promise()
     isRegistered : () ->
-      cred = $.jStorage.get("SRNDP_cred", null)
+      cred = $srndp.jStorage.get("SRNDP_cred", null)
       if cred? then cred.act else false
     getAccessToken : () ->
-      cred = $.jStorage.get("SRNDP_cred", null)
+      cred = $srndp.jStorage.get("SRNDP_cred", null)
       if cred? then cred.at else null
     setAccessToken : (authToken, ttl, active = true) ->
-      $.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 1000 * ttl})
+      $srndp.jStorage.set("SRNDP_cred",{"at" : authToken, "act" : active},{TTL : 1000 * ttl})
     removeAccessToken : () ->
-      $.jStorage.deleteKey("SRNDP_cred")
+      $srndp.jStorage.deleteKey("SRNDP_cred")
     getTTL : () ->
-      $.jStorage.getTTL("SRNDP_cred")
+      $srndp.jStorage.getTTL("SRNDP_cred")
     deferLogin : (deferred) ->
-      $.jStorage.set("SRNDP_deflogin",{"d" : deferred},{TTL : 1000 * 30})
+      $srndp.jStorage.set("SRNDP_deflogin",{"d" : deferred},{TTL : 1000 * 30})
     getDeferredLogin : () ->
-      $.jStorage.get("SRNDP_deflogin")
+      $srndp.jStorage.get("SRNDP_deflogin")
     clearDeferredLogin : () ->
-      $.jStorage.deleteKey("SRNDP_deflogin")
+      $srndp.jStorage.deleteKey("SRNDP_deflogin")
 

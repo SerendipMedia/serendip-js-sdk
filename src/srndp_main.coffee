@@ -7,6 +7,9 @@ define [
   'cs!srndp_settings'
   'jquery'
 ], (_Utils,Auth,Api,ResponseObject,ErrorObject,Settings) ->
+#  Avoid jQuery namespace collision problem
+  window.$srndp = jQuery.noConflict()
+
 #  Define the SRNDP object
   window.SRNDP =
     init : (initObject) ->
@@ -20,14 +23,14 @@ define [
       if (auth) then at = Auth.getAccessToken()
       Api.call(endpoint,params,auth,at,method)
     subscribe : (event, callback) ->
-      $(document).on(event, (e,obj) ->
+      $srndp(document).on(event, (e,obj) ->
         callback(obj) if obj?
       )
     unsubcribe : (event, callback) ->
       if callback?
-        $(document).off(event,callback)
+        $srndp(document).off(event,callback)
     login : (network, implicit = false, rememberMe = false, state, newWindow = true) ->
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           if (network == "serendip")
             SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-login-srndp",Settings.BASE_URL)
@@ -52,7 +55,7 @@ define [
     logout : (facebook = false) ->
       if (facebook)
         SRNDP_FB_IFRAME.contentWindow.postMessage("srndp-logout-fb",Settings.BASE_URL)
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           Auth.logout().done(
             (resp) =>
@@ -63,12 +66,12 @@ define [
           )
       ).promise()
     connect : (network, state, newWindow = true) ->
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           @reject(new ErrorObject("ERR_NOT_SUPPORTED"))
       ).promise()
     disconnect : (network) ->
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           @reject(new ErrorObject("ERR_NOT_SUPPORTED"))
       ).promise()

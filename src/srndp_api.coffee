@@ -5,7 +5,7 @@ define [
 ], (Settings,ErrorObject) ->
   Api =
     call : (endpoint, params, auth, at, method = 'GET') ->
-      return $.Deferred(
+      return $srndp.Deferred(
         () ->
           isValidMethodName = do (method) ->
             for validMethodName in ['GET','POST','PUT','HEAD','DELETE']
@@ -19,10 +19,10 @@ define [
             BASE_URL = (if auth then Settings.SECURE_PROTOCOL else "http://") + BASE_URL
             FULL_URL = BASE_URL + endpoint
             if auth
-              params = $.extend(params,{client_id : SRNDP.CLIENT_ID, auth_token : at})
+              params = $srndp.extend(params,{client_id : SRNDP.CLIENT_ID, auth_token : at})
             else
-              params = $.extend(params,{client_id : SRNDP.CLIENT_ID})
-            $.ajax
+              params = $srndp.extend(params,{client_id : SRNDP.CLIENT_ID})
+            $srndp.ajax
               type : method
               url : FULL_URL
               data : params

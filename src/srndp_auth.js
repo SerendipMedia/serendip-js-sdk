@@ -94,7 +94,7 @@
         if (chrome_extension == null) {
           chrome_extension = false;
         }
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           var err, resp;
           if (typeof SRNDP !== "undefined" && SRNDP !== null) {
             SRNDP.CLIENT_ID = clientId;
@@ -126,7 +126,7 @@
           fromIframe = false;
         }
         that = this;
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           var afterLogin, authResponse, fbTokens, handler, options, params, url,
             _this = this;
           afterLogin = function(obj, clientFlow) {
@@ -181,13 +181,13 @@
                 network_secret: authResponse.signedRequest,
                 network_expiration: authResponse.expiresIn
               };
-              $.extend(params, fbTokens);
+              $srndp.extend(params, fbTokens);
             }
             url = Settings.BASE_OAUTH_URL + that.LOGIN_ENDPOINT;
             params.origin = window.location.href;
-            url = url + "?" + $.param(params);
+            url = url + "?" + $srndp.param(params);
             if (implicit) {
-              return $.ajax({
+              return $srndp.ajax({
                 url: url,
                 type: 'GET',
                 success: function(obj) {
@@ -210,7 +210,7 @@
                   width: 535,
                   height: 663
                 };
-                return window.open(url, "srndp_login", $.param($.extend(this.CONNECT_PARAMS, options)).replace(/&/g, ","));
+                return window.open(url, "srndp_login", $srndp.param($srndp.extend(this.CONNECT_PARAMS, options)).replace(/&/g, ","));
               } else {
                 that.deferLogin();
                 return document.location = url;
@@ -221,9 +221,9 @@
       },
       getLoginStatus: function() {
         var that;
-        $.jStorage.reInit();
+        $srndp.jStorage.reInit();
         that = this;
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           var at, d, facebook_authorized, srndp_authorized;
           d = that.getDeferredLogin();
           if (d == null) {
@@ -251,7 +251,7 @@
           shouldActivate = true;
         }
         that = this;
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           var params,
             _this = this;
           params = {
@@ -278,7 +278,7 @@
       activate: function() {
         var that;
         that = this;
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           var _this = this;
           return Api.call('/auth/activate.json', null, true, that.getAccessToken()).done(function(res) {
             if (res.success) {
@@ -296,7 +296,7 @@
       logout: function() {
         var that;
         that = this;
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           that.removeAccessToken();
           $(document).trigger("srndp.statusChange", new LoginStatusObject("logged_out"));
           this.resolve(new ResponseObject());
@@ -305,7 +305,7 @@
       },
       isRegistered: function() {
         var cred;
-        cred = $.jStorage.get("SRNDP_cred", null);
+        cred = $srndp.jStorage.get("SRNDP_cred", null);
         if (cred != null) {
           return cred.act;
         } else {
@@ -314,7 +314,7 @@
       },
       getAccessToken: function() {
         var cred;
-        cred = $.jStorage.get("SRNDP_cred", null);
+        cred = $srndp.jStorage.get("SRNDP_cred", null);
         if (cred != null) {
           return cred.at;
         } else {
@@ -325,7 +325,7 @@
         if (active == null) {
           active = true;
         }
-        return $.jStorage.set("SRNDP_cred", {
+        return $srndp.jStorage.set("SRNDP_cred", {
           "at": authToken,
           "act": active
         }, {
@@ -333,23 +333,23 @@
         });
       },
       removeAccessToken: function() {
-        return $.jStorage.deleteKey("SRNDP_cred");
+        return $srndp.jStorage.deleteKey("SRNDP_cred");
       },
       getTTL: function() {
-        return $.jStorage.getTTL("SRNDP_cred");
+        return $srndp.jStorage.getTTL("SRNDP_cred");
       },
       deferLogin: function(deferred) {
-        return $.jStorage.set("SRNDP_deflogin", {
+        return $srndp.jStorage.set("SRNDP_deflogin", {
           "d": deferred
         }, {
           TTL: 1000 * 30
         });
       },
       getDeferredLogin: function() {
-        return $.jStorage.get("SRNDP_deflogin");
+        return $srndp.jStorage.get("SRNDP_deflogin");
       },
       clearDeferredLogin: function() {
-        return $.jStorage.deleteKey("SRNDP_deflogin");
+        return $srndp.jStorage.deleteKey("SRNDP_deflogin");
       }
     };
   });

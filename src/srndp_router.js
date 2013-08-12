@@ -43,7 +43,7 @@
     window.SRNDP = {};
     parent.postMessage("srndp-ready", window.__SRNDP__ORIGIN_);
     _Utils.log("srndp-ready");
-    session = $.cookie(Settings.SESSION_COOKIE_NAME);
+    session = $srndp.cookie(Settings.SESSION_COOKIE_NAME);
     if (session != null) {
       session = session.indexOf('user');
     } else {

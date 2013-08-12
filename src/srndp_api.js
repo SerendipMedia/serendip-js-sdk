@@ -7,7 +7,7 @@
         if (method == null) {
           method = 'GET';
         }
-        return $.Deferred(function() {
+        return $srndp.Deferred(function() {
           var BASE_URL, FULL_URL, isValidMethodName,
             _this = this;
           isValidMethodName = (function(method) {
@@ -32,16 +32,16 @@
             BASE_URL = (auth ? Settings.SECURE_PROTOCOL : "http://") + BASE_URL;
             FULL_URL = BASE_URL + endpoint;
             if (auth) {
-              params = $.extend(params, {
+              params = $srndp.extend(params, {
                 client_id: SRNDP.CLIENT_ID,
                 auth_token: at
               });
             } else {
-              params = $.extend(params, {
+              params = $srndp.extend(params, {
                 client_id: SRNDP.CLIENT_ID
               });
             }
-            return $.ajax({
+            return $srndp.ajax({
               type: method,
               url: FULL_URL,
               data: params,
