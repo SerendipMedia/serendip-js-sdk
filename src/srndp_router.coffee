@@ -41,8 +41,7 @@ define [
   window.SRNDP = {}
   #  Avoid jQuery namespace collision problem
   window.$srndp = jQuery.noConflict()
-  window.parent.$srndp = window.$srndp
-  
+
   parent.postMessage("srndp-ready",window.__SRNDP__ORIGIN_)
   _Utils.log("srndp-ready")
   session = $srndp.cookie(Settings.SESSION_COOKIE_NAME)

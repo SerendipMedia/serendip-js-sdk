@@ -15,6 +15,9 @@ define [
       _Utils.log(msg)
       if (msg.origin == Settings.BASE_URL)
         if msg.data.indexOf("srndp-ready") != -1
+          #  Avoid jQuery namespace collision problem
+          window.$srndp = jQuery.noConflict()
+          
           # call serendip ready
           window.onSrndpReady()
 #          check if after login

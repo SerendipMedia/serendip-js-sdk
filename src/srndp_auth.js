@@ -8,6 +8,7 @@
       _Utils.log(msg);
       if (msg.origin === Settings.BASE_URL) {
         if (msg.data.indexOf("srndp-ready") !== -1) {
+          window.$srndp = jQuery.noConflict();
           window.onSrndpReady();
           Auth.checkIfAfterLogin();
         } else if (msg.data.indexOf("srndp-chk-session") !== -1) {
@@ -32,7 +33,7 @@
           SRNDP.LAST_FB_RESPONSE = JSON.parse(msg.data);
         }
         return Auth.getLoginStatus().done(function(loginStatus) {
-          return $(document).trigger("srndp.statusChange", loginStatus);
+          return $srndp(document).trigger("srndp.statusChange", loginStatus);
         });
       }
     };
@@ -266,7 +267,7 @@
             if (res.success) {
               _this.resolve(new ResponseObject());
               that.setAccessToken(that.getAccessToken(), that.getTTL(), true);
-              return $(document).trigger("srndp.statusChange", new LoginStatusObject("logged_in"));
+              return $srndp(document).trigger("srndp.statusChange", new LoginStatusObject("logged_in"));
             } else {
               return _this.reject(new ErrorObject());
             }
@@ -284,7 +285,7 @@
             if (res.success) {
               that.setAccessToken(that.getAccessToken(), that.getTTL(), true);
               _this.resolve(new ResponseObject());
-              return $(document).trigger("srndp.statusChange", new LoginStatusObject("logged_in"));
+              return $srndp(document).trigger("srndp.statusChange", new LoginStatusObject("logged_in"));
             } else {
               return _this.reject(new ErrorObject());
             }
@@ -298,7 +299,7 @@
         that = this;
         return $srndp.Deferred(function() {
           that.removeAccessToken();
-          $(document).trigger("srndp.statusChange", new LoginStatusObject("logged_out"));
+          $srndp(document).trigger("srndp.statusChange", new LoginStatusObject("logged_out"));
           this.resolve(new ResponseObject());
           return Api.call('/auth/logout.json', null, true, that.getAccessToken()).promise();
         }).promise();
