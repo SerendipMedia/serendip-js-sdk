@@ -7,9 +7,6 @@ define [
   'cs!srndp_settings'
   'jquery'
 ], (_Utils,Auth,Api,ResponseObject,ErrorObject,Settings) ->
-#  Avoid jQuery namespace collision problem
-  window.$srndp = jQuery.noConflict()
-
 #  Define the SRNDP object
   window.SRNDP =
     init : (initObject) ->
