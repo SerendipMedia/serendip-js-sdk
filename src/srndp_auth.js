@@ -80,7 +80,9 @@
           newUserObj = {
             username: obj["x_username"],
             email: obj["x_email"],
-            name: obj["x_name"]
+            name: obj["x_name"],
+            network: obj["x_network"],
+            userid: obj["x_userid"]
           };
         }
         this.setAccessToken(obj["access_token"], obj["expires_in"], !newUser);

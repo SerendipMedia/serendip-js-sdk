@@ -17,7 +17,7 @@ define [
         if msg.data.indexOf("srndp-ready") != -1
           #  Avoid jQuery namespace collision problem
           window.$srndp = jQuery.noConflict()
-          
+
           # call serendip ready
           window.onSrndpReady()
 #          check if after login
@@ -71,6 +71,8 @@ define [
           username : obj["x_username"]
           email : obj["x_email"]
           name : obj["x_name"]
+          network : obj["x_network"]
+          userid : obj["x_userid"]
       @setAccessToken(obj["access_token"],obj["expires_in"],!newUser)
       new LoginStatusObject("logged_in",obj["username"],newUser,newUserObj,obj["state"],facebook,serendip)
     getLoginError : (obj) ->
