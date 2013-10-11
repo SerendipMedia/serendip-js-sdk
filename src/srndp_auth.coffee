@@ -99,7 +99,9 @@ define [
           afterLogin = (obj, clientFlow = false) =>
             if (chrome?.runtime?) then chrome.runtime.onMessage.removeListener(handler)
             if obj["success"] or obj["success"] is "true"
-              @resolve(that.getLoggedInResult(obj,clientFlow))
+              res = that.getLoggedInResult(obj,clientFlow)
+              $srndp(document).trigger("srndp.statusChange",res)
+              @resolve(res)
             else
               @reject(that.getLoginError(obj))
           window.onmessage = (e) =>

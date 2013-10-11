@@ -133,6 +133,7 @@
           var afterLogin, authResponse, fbTokens, handler, options, params, url,
             _this = this;
           afterLogin = function(obj, clientFlow) {
+            var res;
             if (clientFlow == null) {
               clientFlow = false;
             }
@@ -140,7 +141,9 @@
               chrome.runtime.onMessage.removeListener(handler);
             }
             if (obj["success"] || obj["success"] === "true") {
-              return _this.resolve(that.getLoggedInResult(obj, clientFlow));
+              res = that.getLoggedInResult(obj, clientFlow);
+              $srndp(document).trigger("srndp.statusChange", res);
+              return _this.resolve(res);
             } else {
               return _this.reject(that.getLoginError(obj));
             }
